@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StudySync — Timetable to Calendar</title>
+<style>
+:root {
+  --bg: #0f0f13;
+  --surface: #18181f;
+  --surface2: #22222c;
+  --border: rgba(255,255,255,0.08);
+  --border-hover: rgba(255,255,255,0.16);
+  --text: #f0f0f5;
+  --muted: #8888a0;
+  --accent: #7c6af5;
+  --accent-light: #a99cf7;
+  --accent-dim: rgba(124,106,245,0.15);
+  --green: #3ecf8e;
+  --green-dim: rgba(62,207,142,0.12);
+  --amber: #f5a623;
+  --amber-dim: rgba(245,166,35,0.12);
+  --red: #f56060;
+  --red-dim: rgba(245,96,96,0.12);
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; line-height: 1.6; }
+
+nav { display: flex; align-items: center; justify-content: space-between; padding: 1rem 2rem; border-bottom: 1px solid var(--border); background: var(--bg); position: sticky; top: 0; z-index: 100; }
+.logo { font-size: 1.1rem; font-weight: 700; }
+.logo span { color: var(--accent-light); }
+
+main { max-width: 820px; margin: 0 auto; padding: 2.5rem 1.5rem 6rem; }
+h1 { font-size: clamp(1.6rem,4vw,2.2rem); font-weight: 700; line-height: 1.2; margin-bottom: 0.5rem; }
+h1 em { color: var(--accent-light); font-style: normal; }
+.subtitle { color: var(--muted); font-size: 14px; margin-bottom: 2.5rem; }
+
+.steps { display: flex; flex-direction: column; gap: 1.25rem; }
+.step { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; transition: border-color 0.2s; }
+.step.done { border-color: rgba(62,207,142,0.25); }
+.step-header { display: flex; align-items: center; gap: 12px; margin-bottom: 1.25rem; }
+.step-num { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; background: var(--accent-dim); color: var(--accent-light); border: 1px solid rgba(124,106,245,0.3); flex-shrink: 0; }
+.step.done .step-num { background: var(--green-dim); color: var(--green); border-color: rgba(62,207,142,0.3); }
+.step-title { font-size: 15px; font-weight: 600; }
+.step-desc { font-size: 12px; color: var(--muted); }
+
+input[type="text"], input[type="date"], input[type="time"], select, textarea {
+  background: var(--surface2); border: 1px solid var(--border-hover);
+  color: var(--text); border-radius: var(--radius-sm);
+  padding: 0.55rem 0.85rem; font-size: 14px; font-family: inherit; outline: none; transition: border-color 0.15s;
+}
+input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+label { font-size: 12px; color: var(--muted); display: block; margin-bottom: 5px; }
+
+.btn { display: inline-flex; align-items: center; gap: 7px; padding: 0.55rem 1.1rem; border-radius: var(--radius-sm); font-size: 14px; font-weight: 500; cursor: pointer; border: none; transition: all 0.15s; text-decoration: none; }
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: #8f7ef7; }
+.btn-primary:disabled { opacity: 0.35; cursor: not-allowed; }
+.btn-outline { background: transparent; color: var(--text); border: 1px solid var(--border-hover); }
+.btn-outline:hover { border-color: var(--accent); color: var(--accent-light); }
+.btn-green { background: var(--green); color: #000; font-weight: 600; }
+.btn-green:hover { background: #55d99e; }
+.btn-green:disabled { opacity: 0.35; cursor: not-allowed; }
+.btn-red { background: transparent; color: var(--red); border: 1px solid rgba(245,96,96,0.25); }
+.btn-red:hover { background: var(--red-dim); }
+.btn-sm { padding: 0.35rem 0.75rem; font-size: 12px; }
+
+.upload-zone { border: 2px dashed var(--border-hover); border-radius: var(--radius-sm); padding: 2.5rem 1.5rem; text-align: center; cursor: pointer; transition: all 0.2s; background: var(--surface2); }
+.upload-zone:hover, .upload-zone.dragging { border-color: var(--accent); background: var(--accent-dim); }
+.upload-zone input { display: none; }
+.upload-icon { font-size: 2.2rem; margin-bottom: 0.5rem; }
+.upload-zone p { color: var(--muted); font-size: 13px; }
+.upload-zone strong { color: var(--text); }
+
+/* LECTURES TABLE */
+.lec-table-wrap { overflow-x: auto; margin-top: 1rem; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead th { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px; padding: 0 8px 8px; text-align: left; white-space: nowrap; }
+tbody tr { border-top: 1px solid var(--border); }
+tbody tr:hover { background: var(--surface2); }
+tbody td { padding: 6px 4px; vertical-align: middle; }
+tbody td input, tbody td select { padding: 0.3rem 0.5rem; font-size: 13px; border-radius: 6px; width: 100%; }
+tbody td select { width: auto; }
+.day-select { font-weight: 600; }
+
+/* BLOCKS */
+.blocks-list { display: flex; flex-direction: column; gap: 10px; margin-top: 1rem; }
+.block-row { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.block-times { display: flex; align-items: center; gap: 6px; }
+.block-times input[type="time"] { width: 105px; }
+.block-days { display: flex; gap: 4px; }
+.day-pill { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; cursor: pointer; border: 1px solid var(--border-hover); color: var(--muted); background: transparent; transition: all 0.15s; user-select: none; }
+.day-pill.on { background: var(--accent-dim); color: var(--accent-light); border-color: rgba(124,106,245,0.4); }
+
+/* PREVIEW */
+.week-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 5px; margin-top: 1rem; }
+.day-col { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; min-height: 80px; }
+.day-col-head { font-size: 11px; font-weight: 600; text-align: center; padding: 5px 3px; border-bottom: 1px solid var(--border); color: var(--muted); text-transform: uppercase; }
+.day-col-body { padding: 4px; display: flex; flex-direction: column; gap: 3px; }
+.pev { font-size: 10px; padding: 3px 5px; border-radius: 4px; line-height: 1.35; overflow: hidden; }
+.pev.lec { background: rgba(124,106,245,0.18); color: var(--accent-light); border-left: 2px solid var(--accent); }
+.pev.blk { background: rgba(62,207,142,0.13); color: var(--green); border-left: 2px solid var(--green); }
+.pev .pt { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pev .ps { opacity: 0.7; }
+
+/* LOG + PROGRESS */
+.progress-bar { height: 3px; background: var(--surface2); border-radius: 2px; overflow: hidden; margin: 1rem 0; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--green)); border-radius: 2px; transition: width 0.3s; }
+.log { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0.85rem 1rem; font-size: 12px; color: var(--muted); max-height: 160px; overflow-y: auto; font-family: monospace; line-height: 1.9; margin-top: 0.75rem; }
+
+/* STATS */
+.stat-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 1rem; }
+.stat-box { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1rem 1.25rem; text-align: center; flex: 1; min-width: 90px; }
+.stat-num { font-size: 1.8rem; font-weight: 700; }
+.stat-label { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+.alert { padding: 0.7rem 1rem; border-radius: var(--radius-sm); font-size: 13px; display: flex; gap: 8px; align-items: flex-start; line-height: 1.5; }
+.alert-info { background: var(--accent-dim); color: var(--accent-light); border: 1px solid rgba(124,106,245,0.2); }
+.alert-warn { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(245,166,35,0.2); }
+.alert-success { background: var(--green-dim); color: var(--green); border: 1px solid rgba(62,207,142,0.2); }
+
+.modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 200; backdrop-filter: blur(4px); }
+.modal { background: var(--surface); border: 1px solid var(--border-hover); border-radius: var(--radius); padding: 1.75rem; max-width: 480px; width: 90%; max-height: 90vh; overflow-y: auto; }
+.modal h3 { font-size: 1rem; font-weight: 600; margin-bottom: 1rem; }
+.guide-steps { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.guide-steps li { display: flex; gap: 10px; font-size: 13px; color: var(--muted); }
+.gn { min-width: 20px; height: 20px; border-radius: 50%; background: var(--accent-dim); color: var(--accent-light); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; flex-shrink: 0; margin-top: 2px; }
+a { color: var(--accent-light); text-decoration: none; }
+a:hover { text-decoration: underline; }
+code { font-size: 12px; background: var(--surface2); padding: 1px 6px; border-radius: 4px; color: var(--accent-light); font-family: monospace; }
+hr { border: none; border-top: 1px solid var(--border); margin: 1.25rem 0; }
+.row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.chip { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; padding: 3px 9px; border-radius: 20px; }
+.chip-green { background: var(--green-dim); color: var(--green); }
+.dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+.hidden { display: none !important; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinner { width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.2); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; }
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="logo">Study<span>Sync</span></span>
+</nav>
+
+<main>
+  <h1>Your timetable,<br><em>on Google Calendar.</em></h1>
+  <p class="subtitle">Enter your lectures → set your study blocks → sync everything to Google Calendar. No accounts, no AI, no servers.</p>
+
+  <div class="steps">
+
+    <!-- STEP 1: GOOGLE -->
+    <div class="step" id="step-google">
+      <div class="step-header">
+        <div class="step-num" id="num-1">1</div>
+        <div><div class="step-title">Connect Google Calendar</div><div class="step-desc">One-time OAuth login — events go to your primary calendar</div></div>
+      </div>
+
+      <div id="google-auth-area">
+        <div class="alert alert-warn" style="margin-bottom:1rem;">
+          ⚠️ Requires a Google Cloud Client ID. <button onclick="showSetupGuide()" style="background:none;border:none;color:var(--amber);cursor:pointer;font-size:13px;text-decoration:underline;padding:0;">Setup guide (5 min)</button>
+        </div>
+        <div class="row">
+          <input type="text" id="gcal-client-id" placeholder="xxxxxxx.apps.googleusercontent.com" style="flex:1;min-width:200px;">
+          <button class="btn btn-primary" onclick="initGoogle()">Sign in with Google</button>
+        </div>
+        <p style="font-size:12px;color:var(--muted);margin-top:8px;">Your Client ID is saved in the browser. Events are created directly via Google's API — nothing goes through any other server.</p>
+      </div>
+
+      <div id="google-ok" class="hidden row">
+        <span class="chip chip-green"><span class="dot"></span> Connected</span>
+        <span id="google-email" style="font-size:13px;color:var(--muted);"></span>
+        <button class="btn btn-outline btn-sm" onclick="signOut()">Sign out</button>
+      </div>
+    </div>
+
+    <!-- STEP 2: LECTURES -->
+    <div class="step" id="step-lectures">
+      <div class="step-header">
+        <div class="step-num" id="num-2">2</div>
+        <div><div class="step-title">Enter your lectures</div><div class="step-desc">Type in each class — day, time, subject</div></div>
+      </div>
+
+      <div class="lec-table-wrap">
+        <table id="lec-table">
+          <thead>
+            <tr>
+              <th>Day</th>
+              <th style="min-width:150px;">Subject</th>
+              <th>Start</th>
+              <th>End</th>
+              <th>Location</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="lec-body"></tbody>
+        </table>
+      </div>
+
+      <div style="margin-top:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <button class="btn btn-outline btn-sm" onclick="addLecture()">+ Add lecture</button>
+        <button class="btn btn-outline btn-sm" onclick="loadSample()">Load sample</button>
+        <span id="lec-count" style="font-size:12px;color:var(--muted);"></span>
+      </div>
+
+      <div class="alert alert-info" style="margin-top:1rem;">
+        📋 Tip — look at your physical timetable or college portal and type in each class. If a subject repeats on multiple days, add one row per day.
+      </div>
+    </div>
+
+    <!-- STEP 3: STUDY BLOCKS -->
+    <div class="step" id="step-blocks">
+      <div class="step-header">
+        <div class="step-num" id="num-3">3</div>
+        <div><div class="step-title">Study blocks</div><div class="step-desc">Set the exact time and days for each session</div></div>
+      </div>
+
+      <div class="blocks-list" id="blocks-list"></div>
+      <button class="btn btn-outline btn-sm" onclick="addBlock()" style="margin-top:12px;">+ Add block</button>
+    </div>
+
+    <!-- STEP 4: PREVIEW -->
+    <div class="step" id="step-preview">
+      <div class="step-header">
+        <div class="step-num" id="num-4">4</div>
+        <div><div class="step-title">Week preview</div><div class="step-desc">Lectures first, study blocks around them</div></div>
+      </div>
+      <div class="week-grid" id="week-grid"></div>
+      <div style="margin-top:10px;display:flex;gap:16px;font-size:12px;color:var(--muted);">
+        <span style="display:flex;align-items:center;gap:5px;"><span style="width:10px;height:10px;border-radius:2px;background:rgba(124,106,245,0.4);display:inline-block;"></span> Lecture</span>
+        <span style="display:flex;align-items:center;gap:5px;"><span style="width:10px;height:10px;border-radius:2px;background:rgba(62,207,142,0.3);display:inline-block;"></span> Study block</span>
+      </div>
+    </div>
+
+    <!-- STEP 5: SYNC -->
+    <div class="step" id="step-sync">
+      <div class="step-header">
+        <div class="step-num" id="num-5">5</div>
+        <div><div class="step-title">Sync to Google Calendar</div><div class="step-desc">Pick a date range and push everything</div></div>
+      </div>
+
+      <div class="row" style="margin-bottom:1.25rem;">
+        <div><label>Start</label><input type="date" id="start-date" style="width:auto;"></div>
+        <div><label>End</label><input type="date" id="end-date" style="width:auto;"></div>
+        <div style="align-self:flex-end;display:flex;gap:6px;">
+          <button class="btn btn-outline btn-sm" onclick="setWeeks(4)">4 wks</button>
+          <button class="btn btn-outline btn-sm" onclick="setWeeks(8)">8 wks</button>
+          <button class="btn btn-outline btn-sm" onclick="setWeeks(12)">12 wks</button>
+        </div>
+      </div>
+
+      <button class="btn btn-green" id="sync-btn" onclick="syncCalendar()" disabled>
+        <span id="sync-spinner" class="spinner hidden"></span>
+        Sync to Google Calendar
+      </button>
+
+      <div class="progress-bar hidden" id="progress-bar">
+        <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+      </div>
+      <div class="log hidden" id="log"></div>
+
+      <div id="result" class="hidden">
+        <div class="alert alert-success" style="margin-top:1rem;">✅ Done! Your Google Calendar has been updated.</div>
+        <div class="stat-row">
+          <div class="stat-box"><div class="stat-num" id="s-lec" style="color:var(--accent-light);">0</div><div class="stat-label">Lectures</div></div>
+          <div class="stat-box"><div class="stat-num" id="s-blk" style="color:var(--green);">0</div><div class="stat-label">Study blocks</div></div>
+          <div class="stat-box"><div class="stat-num" id="s-days" style="color:var(--amber);">0</div><div class="stat-label">Days</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- SETUP GUIDE MODAL -->
+<div class="modal-bg hidden" id="setup-modal" onclick="if(event.target===this)this.classList.add('hidden')">
+  <div class="modal">
+    <h3>🔑 Google OAuth setup — ~5 minutes</h3>
+    <ul class="guide-steps">
+      <li><div class="gn">1</div><div>Go to <a href="https://console.cloud.google.com" target="_blank">console.cloud.google.com</a> and create a new project (any name)</div></li>
+      <li><div class="gn">2</div><div>Go to <strong>APIs & Services → Library</strong> → search "Google Calendar API" → Enable it</div></li>
+      <li><div class="gn">3</div><div>Go to <strong>APIs & Services → OAuth consent screen</strong> → choose External → fill in App name → Save</div></li>
+      <li><div class="gn">4</div><div>Still on consent screen → scroll to <strong>Test users</strong> → add your Gmail address</div></li>
+      <li><div class="gn">5</div><div>Go to <strong>Credentials → + Create Credentials → OAuth Client ID</strong> → type: <strong>Web application</strong></div></li>
+      <li><div class="gn">6</div><div>Under <strong>Authorized JavaScript origins</strong> add: <code>https://yourusername.github.io</code><br>For local testing also add: <code>http://localhost:8080</code></div></li>
+      <li><div class="gn">7</div><div>Click Create → copy the <strong>Client ID</strong> → paste it in step 1 above</div></li>
+    </ul>
+    <div style="margin-top:1.25rem;display:flex;gap:8px;justify-content:flex-end;">
+      <button class="btn btn-outline" onclick="document.getElementById('setup-modal').classList.add('hidden')">Close</button>
+      <a class="btn btn-primary" href="https://console.cloud.google.com" target="_blank">Open Google Cloud →</a>
+    </div>
+  </div>
+</div>
+
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script>
+
+// ─── DATA ─────────────────────────────────────────────────────────────────────
+
+let accessToken = null;
+
+let lectures = [];
+
+let blocks = [
+  { id:'jee',      emoji:'📐', name:'JEE Self Study',   start:'06:00', end:'08:00', days:[1,2,3,4,5,6,0] },
+  { id:'revision', emoji:'🔁', name:'Daily Revision',    start:'08:15', end:'09:00', days:[1,2,3,4,5,6]   },
+  { id:'sat',      emoji:'📊', name:'SAT Prep',          start:'20:00', end:'21:30', days:[1,2,3,4,5]     },
+  { id:'ielts',    emoji:'🗣', name:'IELTS Practice',    start:'18:00', end:'19:00', days:[1,2,3,4,5,6]   },
+  { id:'reading',  emoji:'📖', name:'Book Reading',      start:'22:00', end:'22:45', days:[1,2,3,4,5,6,0] },
+  { id:'exercise', emoji:'🏃', name:'Exercise',          start:'17:00', end:'17:45', days:[1,2,3,4,5,6,0] },
+  { id:'mock',     emoji:'📝', name:'Mock Tests',        start:'10:00', end:'13:00', days:[6,0]           },
+];
+
+const DAYS_FULL  = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const DAYS_SHORT = ['Su','Mo','Tu','We','Th','Fr','Sa'];
+const DAY_JS     = { Sunday:0, Monday:1, Tuesday:2, Wednesday:3, Thursday:4, Friday:5, Saturday:6 };
+const ORDER      = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+
+window.addEventListener('DOMContentLoaded', () => {
+  const cid = localStorage.getItem('gcal_cid');
+  if (cid) document.getElementById('gcal-client-id').value = cid;
+
+  setWeeks(4);
+  renderBlocks();
+  renderPreview();
+  updateLecCount();
+});
+
+// ─── GOOGLE AUTH ──────────────────────────────────────────────────────────────
+
+function initGoogle() {
+  const cid = document.getElementById('gcal-client-id').value.trim();
+  if (!cid) { toast('Paste your Client ID first', true); return; }
+  if (!window.google) { toast('Google script still loading — try again in a second', true); return; }
+  localStorage.setItem('gcal_cid', cid);
+
+  const client = google.accounts.oauth2.initTokenClient({
+    client_id: cid,
+    scope: 'https://www.googleapis.com/auth/calendar.events',
+    callback: async (resp) => {
+      if (resp.error) { toast('Auth error: ' + resp.error, true); return; }
+      accessToken = resp.access_token;
+      try {
+        const info = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+          headers: { Authorization: 'Bearer ' + accessToken }
+        }).then(r => r.json());
+        document.getElementById('google-auth-area').classList.add('hidden');
+        document.getElementById('google-ok').classList.remove('hidden');
+        document.getElementById('google-email').textContent = info.email || '';
+        markDone(1);
+        document.getElementById('sync-btn').disabled = false;
+      } catch(e) { toast('Could not fetch user info', true); }
+    }
+  });
+  client.requestAccessToken();
+}
+
+function signOut() {
+  accessToken = null;
+  document.getElementById('google-ok').classList.add('hidden');
+  document.getElementById('google-auth-area').classList.remove('hidden');
+  document.getElementById('sync-btn').disabled = true;
+  unmarkDone(1);
+}
+
+// ─── LECTURES ─────────────────────────────────────────────────────────────────
+
+function addLecture(lec) {
+  const l = lec || { subject:'', day:'Monday', start:'09:00', end:'10:00', location:'' };
+  lectures.push(l);
+  appendLectureRow(lectures.length - 1, l);
+  updateLecCount();
+  renderPreview();
+}
+
+function appendLectureRow(i, l) {
+  const tbody = document.getElementById('lec-body');
+  const tr = document.createElement('tr');
+  tr.dataset.i = i;
+  tr.innerHTML = `
+    <td>
+      <select class="day-select" onchange="lectures[${i}].day=this.value;renderPreview()">
+        ${ORDER.map(d=>`<option value="${d}" ${d===l.day?'selected':''}>${d.slice(0,3)}</option>`).join('')}
+      </select>
+    </td>
+    <td><input type="text" value="${esc(l.subject)}" placeholder="Subject name" onchange="lectures[${i}].subject=this.value;renderPreview()" style="width:100%;"></td>
+    <td><input type="time" value="${l.start}" onchange="lectures[${i}].start=this.value;renderPreview()"></td>
+    <td><input type="time" value="${l.end}" onchange="lectures[${i}].end=this.value;renderPreview()"></td>
+    <td><input type="text" value="${esc(l.location)}" placeholder="Room / online" onchange="lectures[${i}].location=this.value" style="width:100%;min-width:90px;"></td>
+    <td><button class="btn btn-red btn-sm" onclick="removeLecture(${i})">✕</button></td>`;
+  tbody.appendChild(tr);
+}
+
+function removeLecture(i) {
+  lectures.splice(i, 1);
+  rebuildLecTable();
+  renderPreview();
+  updateLecCount();
+}
+
+function rebuildLecTable() {
+  document.getElementById('lec-body').innerHTML = '';
+  lectures.forEach((l, i) => appendLectureRow(i, l));
+}
+
+function updateLecCount() {
+  document.getElementById('lec-count').textContent = lectures.length ? `${lectures.length} class${lectures.length>1?'es':''} entered` : '';
+}
+
+function loadSample() {
+  lectures = [
+    { subject:'Physics', day:'Monday', start:'09:00', end:'10:30', location:'Lab 2' },
+    { subject:'Maths', day:'Monday', start:'11:00', end:'12:30', location:'Room 101' },
+    { subject:'Chemistry', day:'Tuesday', start:'09:00', end:'10:30', location:'Lab 1' },
+    { subject:'English', day:'Tuesday', start:'14:00', end:'15:30', location:'Room 204' },
+    { subject:'Maths', day:'Wednesday', start:'09:00', end:'10:30', location:'Room 101' },
+    { subject:'Physics', day:'Wednesday', start:'11:00', end:'12:30', location:'Lab 2' },
+    { subject:'Biology', day:'Thursday', start:'09:00', end:'10:30', location:'Lab 3' },
+    { subject:'Chemistry', day:'Friday', start:'09:00', end:'10:30', location:'Lab 1' },
+    { subject:'Maths', day:'Friday', start:'11:00', end:'12:30', location:'Room 101' },
+  ];
+  rebuildLecTable();
+  updateLecCount();
+  renderPreview();
+  toast('Sample timetable loaded');
+}
+
+// ─── BLOCKS ───────────────────────────────────────────────────────────────────
+
+function renderBlocks() {
+  document.getElementById('blocks-list').innerHTML = blocks.map((b, i) => `
+    <div class="block-row">
+      <input type="text" value="${b.emoji}" onchange="blocks[${i}].emoji=this.value;renderPreview()" style="width:44px;text-align:center;font-size:1.15rem;padding:0.3rem;flex-shrink:0;">
+      <input type="text" value="${esc(b.name)}" onchange="blocks[${i}].name=this.value;renderPreview()" style="flex:1;min-width:120px;font-weight:500;">
+      <div class="block-times">
+        <input type="time" value="${b.start}" onchange="blocks[${i}].start=this.value;renderPreview()">
+        <span style="color:var(--muted);font-size:12px;">–</span>
+        <input type="time" value="${b.end}" onchange="blocks[${i}].end=this.value;renderPreview()">
+      </div>
+      <div class="block-days">
+        ${DAYS_SHORT.map((d,di)=>`<div class="day-pill ${b.days.includes(di)?'on':''}" onclick="toggleDay(${i},${di},this)">${d}</div>`).join('')}
+      </div>
+      <button class="btn btn-red btn-sm" onclick="removeBlock(${i})">✕</button>
+    </div>`).join('');
+}
+
+function toggleDay(bi, di, el) {
+  const b = blocks[bi];
+  b.days = b.days.includes(di) ? b.days.filter(d=>d!==di) : [...b.days, di];
+  el.classList.toggle('on', b.days.includes(di));
+  renderPreview();
+}
+
+function removeBlock(i) { blocks.splice(i,1); renderBlocks(); renderPreview(); }
+
+function addBlock() {
+  blocks.push({ id:'c'+Date.now(), emoji:'📌', name:'Study Block', start:'15:00', end:'16:00', days:[1,2,3,4,5] });
+  renderBlocks();
+  renderPreview();
+}
+
+// ─── PREVIEW ──────────────────────────────────────────────────────────────────
+
+function renderPreview() {
+  const grid = document.getElementById('week-grid');
+  // Mon–Sun display order
+  const colOrder = [1,2,3,4,5,6,0];
+
+  grid.innerHTML = colOrder.map(dayIdx => {
+    const dayName = DAYS_FULL[dayIdx];
+
+    const lecEvents = lectures
+      .filter(l => DAY_JS[l.day] === dayIdx)
+      .map(l => ({ type:'lec', label:l.subject||'—', start:l.start, end:l.end }));
+
+    const blkEvents = blocks
+      .filter(b => b.days.includes(dayIdx))
+      .map(b => ({ type:'blk', label:b.emoji+' '+b.name, start:b.start, end:b.end }));
+
+    const all = [...lecEvents, ...blkEvents].sort((a,b) => a.start.localeCompare(b.start));
+
+    return `<div class="day-col">
+      <div class="day-col-head">${dayName.slice(0,3)}</div>
+      <div class="day-col-body">
+        ${all.length === 0
+          ? '<span style="font-size:10px;color:var(--muted);padding:4px 5px;display:block;">—</span>'
+          : all.map(e=>`<div class="pev ${e.type}" title="${e.label} ${e.start}–${e.end}">
+              <div class="pt">${e.label}</div>
+              <div class="ps">${e.start}–${e.end}</div>
+            </div>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ─── SYNC ─────────────────────────────────────────────────────────────────────
+
+async function syncCalendar() {
+  if (!accessToken) { toast('Connect Google Calendar first', true); return; }
+
+  const s = new Date(document.getElementById('start-date').value);
+  const e = new Date(document.getElementById('end-date').value);
+  if (isNaN(s)||isNaN(e)||e<s) { toast('Fix your date range', true); return; }
+
+  if (lectures.filter(l=>l.subject.trim()).length === 0 && blocks.length === 0) {
+    toast('Add at least one lecture or study block first', true); return;
+  }
+
+  // Build events
+  const events = [];
+  for (let d = new Date(s); d <= e; d.setDate(d.getDate()+1)) {
+    const dow = d.getDay();
+    const ds = toISO(new Date(d));
+
+    lectures.filter(l => l.subject.trim() && DAY_JS[l.day] === dow).forEach(l => {
+      events.push({
+        _t:'lec',
+        summary: '📚 ' + l.subject,
+        description: l.location ? 'Location: '+l.location : '',
+        start: { dateTime: ds+'T'+l.start+':00', timeZone:'Asia/Kolkata' },
+        end:   { dateTime: ds+'T'+l.end+':00',   timeZone:'Asia/Kolkata' },
+        colorId: '9'
+      });
+    });
+
+    blocks.filter(b => b.days.includes(dow)).forEach(b => {
+      events.push({
+        _t:'blk',
+        summary: b.emoji+' '+b.name,
+        start: { dateTime: ds+'T'+b.start+':00', timeZone:'Asia/Kolkata' },
+        end:   { dateTime: ds+'T'+b.end+':00',   timeZone:'Asia/Kolkata' },
+        colorId: '2'
+      });
+    });
+  }
+
+  // UI
+  document.getElementById('sync-btn').disabled = true;
+  document.getElementById('sync-spinner').classList.remove('hidden');
+  document.getElementById('progress-bar').classList.remove('hidden');
+  document.getElementById('log').classList.remove('hidden');
+  document.getElementById('result').classList.add('hidden');
+  document.getElementById('log').innerHTML = '';
+  document.getElementById('progress-fill').style.width = '0%';
+
+  addLog(`Pushing ${events.length} events over ${daysBetween(s,e)} days…`);
+
+  let done=0, failed=0;
+  for (const ev of events) {
+    try {
+      const body = { summary:ev.summary, start:ev.start, end:ev.end, colorId:ev.colorId };
+      if (ev.description) body.description = ev.description;
+      const res = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
+        method:'POST',
+        headers:{ Authorization:'Bearer '+accessToken, 'Content-Type':'application/json' },
+        body: JSON.stringify(body)
+      });
+      if (!res.ok) { const err=await res.json(); throw new Error(err.error?.message||res.status); }
+      done++;
+    } catch(err) {
+      failed++;
+      addLog('✗ '+ev.summary+': '+err.message, true);
+    }
+    const pct = Math.round((done+failed)/events.length*100);
+    document.getElementById('progress-fill').style.width = pct+'%';
+    if ((done+failed) % 10 === 0 || done+failed === events.length)
+      addLog(`${done+failed}/${events.length} done…`);
+    await sleep(90);
+  }
+
+  addLog(`✓ Finished — ${done} created${failed ? ', '+failed+' failed' : ''}`);
+  document.getElementById('sync-spinner').classList.add('hidden');
+  document.getElementById('sync-btn').disabled = false;
+  document.getElementById('result').classList.remove('hidden');
+  document.getElementById('s-lec').textContent  = events.filter(e=>e._t==='lec').length;
+  document.getElementById('s-blk').textContent  = events.filter(e=>e._t==='blk').length;
+  document.getElementById('s-days').textContent = daysBetween(s,e);
+  markDone(5);
+}
+
+// ─── UTILS ────────────────────────────────────────────────────────────────────
+
+function setWeeks(n) {
+  const today = new Date();
+  const mon = new Date(today);
+  mon.setDate(today.getDate() - ((today.getDay()+6)%7)); // this Monday
+  document.getElementById('start-date').value = toISO(mon);
+  const end = new Date(mon);
+  end.setDate(mon.getDate() + n*7 - 1);
+  document.getElementById('end-date').value = toISO(end);
+}
+
+function toISO(d) { return d.toISOString().split('T')[0]; }
+function daysBetween(a,b) { return Math.round((b-a)/86400000)+1; }
+function sleep(ms) { return new Promise(r=>setTimeout(r,ms)); }
+function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+
+function addLog(msg, isErr=false) {
+  const el = document.getElementById('log');
+  el.innerHTML += `<div style="color:${isErr?'var(--red)':'inherit'}">${msg}</div>`;
+  el.scrollTop = el.scrollHeight;
+}
+
+function toast(msg, isErr=false) {
+  const t = document.createElement('div');
+  t.style.cssText = `position:fixed;bottom:24px;right:24px;z-index:999;padding:10px 18px;border-radius:10px;font-size:14px;font-weight:500;transition:opacity 0.3s;background:${isErr?'var(--red-dim)':'var(--green-dim)'};color:${isErr?'var(--red)':'var(--green)'};border:1px solid ${isErr?'rgba(245,96,96,0.3)':'rgba(62,207,142,0.3)'};`;
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(()=>{ t.style.opacity='0'; setTimeout(()=>t.remove(),300); }, 3000);
+}
+
+function markDone(n)   { document.getElementById('num-'+n).textContent='✓'; document.getElementById('step-'+['google','lectures','blocks','preview','sync'][n-1]).classList.add('done'); }
+function unmarkDone(n) { document.getElementById('num-'+n).textContent=n;   document.getElementById('step-'+['google','lectures','blocks','preview','sync'][n-1]).classList.remove('done'); }
+
+function showSetupGuide() { document.getElementById('setup-modal').classList.remove('hidden'); }
+</script>
+</body>
+</html>
