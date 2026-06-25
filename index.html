@@ -1795,7 +1795,7 @@ function buildRetUI(from,to) {
     const dow=new Date(ev.start.dateTime).getDay();
     const dayName=DAYS_FULL[dow];
     const st=ev.start.dateTime.slice(11,16), en=ev.end.dateTime.slice(11,16);
-    const subj=(ev.summary||'').replace(/^📚\s*/,'').trim();
+    const subj = (ev.summary || '') .replace(/^[^\w\s]+\s*/, '') .trim();
     const loc=ev.location||'';
     const key=`${dayName}|${subj}|${st}|${en}`;
     if(!seen.has(key)){ seen.add(key); retLectures.push({subject:subj,day:dayName,start:st,end:en,location:loc}); }
