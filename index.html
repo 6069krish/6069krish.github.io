@@ -864,6 +864,8 @@ function loadFPs()  { try{return new Set(JSON.parse(localStorage.getItem(FP_KEY)
 function saveFPs(s) { localStorage.setItem(FP_KEY,JSON.stringify([...s])) }
 function fp(ev)     { return ev.start.dateTime.slice(0,16)+'|'+ev.summary+'|'+ev.end.dateTime.slice(11,16) }
 
+window.onerror=function(msg,src,line,col,err){console.error(msg,line,err);};
+
 // ════════════════════════════════════════════════════════════════════════════
 //  INIT
 // ════════════════════════════════════════════════════════════════════════════
@@ -875,6 +877,7 @@ window.addEventListener('DOMContentLoaded', () => {
   setRetRange(1);
   updateSyncStatusBar();
   updateFpsLabel();
+  updateMobNav('dashboard');
 
   // Keyboard shortcuts
   document.addEventListener('keydown', e => {
@@ -920,6 +923,7 @@ function loadData() {
     if(cid) document.getElementById('gcal-cid').value = cid;
     const tzSel = document.getElementById('tz-select');
     if(tzSel && d.tz) tzSel.value = d.tz;
+    S.blocks.forEach(b=>{ if(b.enabled===undefined) b.enabled=true; if(!b.days) b.days=[1,2,3,4,5]; if(!b.color) b.color='#7b68ee'; });
   } catch(e) {}
 }
 function clearAllData() {
@@ -938,17 +942,26 @@ function clearAllData() {
 function showPage(name) {
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
-  document.getElementById('page-'+name).classList.add('active');
-  document.getElementById('tab-'+name).classList.add('active');
-  updateMobNav(name);
-  if(name==='analytics') renderAnalytics();
-  if(name==='timetable'){ renderHourGrid(); detectConflicts(); }
-  if(name==='calendar')  renderBlockSelector();
-  if(name==='dashboard'){ renderDashboard(); renderPreview('dash-week-grid'); }
-  if(name==='settings')  updateFpsLabel();
+  const page=document.getElementById('page-'+name);
+  const tab=document.getElementById('tab-'+name);
+  if(page) page.classList.add('active');
+  if(tab) tab.classList.add('active');
+  if(typeof updateMobNav==='function') updateMobNav(name);
+  if(name==='analytics' && typeof renderAnalytics==='function') renderAnalytics();
+  if(name==='timetable'){ if(typeof renderHourGrid==='function') renderHourGrid(); if(typeof detectConflicts==='function') detectConflicts(); }
+  if(name==='calendar' && typeof renderBlockSelector==='function') renderBlockSelector();
+  if(name==='dashboard'){ if(typeof renderDashboard==='function') renderDashboard(); if(typeof renderPreview==='function') renderPreview('dash-week-grid'); }
+  if(name==='settings' && typeof updateFpsLabel==='function') updateFpsLabel();
 }
 function showModal(id)  { document.getElementById(id).classList.remove('hidden'); }
 function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+
+function updateMobNav(page){
+  document.querySelectorAll('.mob-tab').forEach(btn=>btn.classList.remove('active'));
+  const tab=document.getElementById('mob-'+page);
+  if(tab) tab.classList.add('active');
+}
 
 // ════════════════════════════════════════════════════════════════════════════
 //  THEME
