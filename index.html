@@ -1614,7 +1614,7 @@ function renderCountdowns() {
     const d=new Date(e.date); const diff=Math.round((d-today)/86400000);
     return `<div class="countdown-card" style="border-color:${diff<=7?'rgba(248,113,113,.3)':diff<=30?'rgba(251,191,36,.3)':'var(--border)'}">
       <div class="countdown-name">${esc(e.name)}</div>
-      <div class="countdown-days ${diff<=7?'countdown-soon':diff<=30?'':''countdown-ok"}">${diff}</div>
+     <div class="countdown-days ${diff<=7 ? 'countdown-soon' : diff<=30 ? '' : 'countdown-ok'}">${diff}</div>
       <div class="countdown-label">day${diff!==1?'s':''} left · ${new Date(e.date).toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</div>
       ${e.note?`<div style="font-size:11px;color:var(--text2);margin-top:4px">${esc(e.note)}</div>`:''}
       <div style="margin-top:.5rem;display:flex;gap:6px;justify-content:center">
