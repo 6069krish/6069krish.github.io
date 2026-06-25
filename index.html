@@ -983,37 +983,130 @@ function toggleAutosave() {
 // ════════════════════════════════════════════════════════════════════════════
 //  GOOGLE AUTH
 // ════════════════════════════════════════════════════════════════════════════
-function initGoogle() {
+async function initGoogle() {
   const cid = document.getElementById('gcal-cid').value.trim();
-  if(!cid){ toast('Paste your Client ID first','error'); return; }
-  if(!window.google){ toast('Google script loading — wait a moment','warn'); return; }
+
+  if (!cid) {
+    toast('Paste your Client ID first', 'error');
+    return;
+  }
+
+  if (!window.google) {
+    toast('Google script loading — wait a moment', 'warn');
+    return;
+  }
+
   localStorage.setItem('gcal_cid', cid);
 
   const client = google.accounts.oauth2.initTokenClient({
     client_id: cid,
     scope: GCAL_SCOPE,
-    callback: async resp => {
-      if(resp.error){ toast('Auth error: '+resp.error,'error'); return; }
+
+    callback: async (resp) => {
+
+      console.log('OAuth Response:', resp);
+
+      if (resp.error) {
+        toast('Auth error: ' + resp.error, 'error');
+        return;
+      }
+
       accessToken = resp.access_token;
+
+      console.log('Access Token:', accessToken);
+      console.log('Token Type:', resp.token_type);
+      console.log('Scopes:', resp.scope);
+
       try {
-        const info = await gfetch('https://www.googleapis.com/oauth2/v3/userinfo');
-        document.getElementById('dash-auth-area').classList.add('hidden');
-        document.getElementById('dash-connected').classList.remove('hidden');
-        document.getElementById('dash-email').textContent = info.email||'';
-        document.getElementById('nav-conn-badge').textContent = '● Connected';
-        document.getElementById('nav-conn-badge').style.background='var(--green-dim)';
-        document.getElementById('nav-conn-badge').style.color='var(--green)';
-        document.getElementById('cal-no-auth').classList.add('hidden');
-        document.getElementById('cal-auth-panel').classList.remove('hidden');
-        document.getElementById('ret-no-auth').classList.add('hidden');
-        document.getElementById('ret-auth-panel').classList.remove('hidden');
-        document.getElementById('sync-btn').disabled = false;
+
+        // Validate token with Google
+        const tokenCheck = await fetch(
+          'https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=' +
+          accessToken
+        );
+
+        const tokenInfo = await tokenCheck.json();
+
+        console.log('Token Info:', tokenInfo);
+
+        if (tokenInfo.error) {
+          throw new Error(
+            'Google rejected token: ' +
+            tokenInfo.error
+          );
+        }
+
+        const info = await gfetch(
+          'https://www.googleapis.com/oauth2/v3/userinfo'
+        );
+
+        document
+          .getElementById('dash-auth-area')
+          .classList.add('hidden');
+
+        document
+          .getElementById('dash-connected')
+          .classList.remove('hidden');
+
+        document
+          .getElementById('dash-email')
+          .textContent = info.email || '';
+
+        document
+          .getElementById('nav-conn-badge')
+          .textContent = '● Connected';
+
+        document
+          .getElementById('nav-conn-badge')
+          .style.background = 'var(--green-dim)';
+
+        document
+          .getElementById('nav-conn-badge')
+          .style.color = 'var(--green)';
+
+        document
+          .getElementById('cal-no-auth')
+          .classList.add('hidden');
+
+        document
+          .getElementById('cal-auth-panel')
+          .classList.remove('hidden');
+
+        document
+          .getElementById('ret-no-auth')
+          .classList.add('hidden');
+
+        document
+          .getElementById('ret-auth-panel')
+          .classList.remove('hidden');
+
+        document
+          .getElementById('sync-btn')
+          .disabled = false;
+
         await ensureStudySyncCalendar();
-        toast('Connected to Google Calendar','success');
-      } catch(e){ toast('Error: '+e.message,'error'); }
+
+        toast(
+          'Connected to Google Calendar',
+          'success'
+        );
+
+      } catch (e) {
+
+        console.error(e);
+
+        toast(
+          'Google Auth Error: ' + e.message,
+          'error'
+        );
+
+      }
     }
   });
-  client.requestAccessToken();
+
+  client.requestAccessToken({
+    prompt: 'consent'
+  });
 }
 
 function signOut() {
