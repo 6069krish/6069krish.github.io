@@ -1037,59 +1037,33 @@ async function initGoogle() {
         }
 
         const info = await gfetch(
-          'https://www.googleapis.com/oauth2/v3/userinfo'
-        );
+  'https://www.googleapis.com/oauth2/v3/userinfo'
+);
 
-        document
-          .getElementById('dash-auth-area')
-          .classList.add('hidden');
+document
+  .getElementById('dash-auth-area')
+  .classList.add('hidden');
 
-        document
-          .getElementById('dash-connected')
-          .classList.remove('hidden');
+document
+  .getElementById('dash-connected')
+  .classList.remove('hidden');
 
-        document
-          .getElementById('dash-email')
-          .textContent = info.email || '';
+document.getElementById('dash-email').textContent =
+  'Google Connected';
 
-        document
-          .getElementById('nav-conn-badge')
-          .textContent = '● Connected';
+await ensureStudySyncCalendar();
 
-        document
-          .getElementById('nav-conn-badge')
-          .style.background = 'var(--green-dim)';
+document
+  .getElementById('nav-conn-badge')
+  .textContent = '● Connected';
 
-        document
-          .getElementById('nav-conn-badge')
-          .style.color = 'var(--green)';
+document
+  .getElementById('nav-conn-badge')
+  .style.background = 'var(--green-dim)';
 
-        document
-          .getElementById('cal-no-auth')
-          .classList.add('hidden');
-
-        document
-          .getElementById('cal-auth-panel')
-          .classList.remove('hidden');
-
-        document
-          .getElementById('ret-no-auth')
-          .classList.add('hidden');
-
-        document
-          .getElementById('ret-auth-panel')
-          .classList.remove('hidden');
-
-        document
-          .getElementById('sync-btn')
-          .disabled = false;
-
-        await ensureStudySyncCalendar();
-
-        toast(
-          'Connected to Google Calendar',
-          'success'
-        );
+document
+  .getElementById('nav-conn-badge')
+  .style.color = 'var(--green)';
 
       } catch (e) {
 
