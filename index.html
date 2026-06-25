@@ -841,6 +841,7 @@ let studySyncCalId = null; // ID of the dedicated StudySync calendar
 
 // Retrieve state
 let retEvents    = [];
+let calendarConflicts = [];
 let retLectures  = [];
 let retWeekStart = null;
 let currentRetTab = 'week';
@@ -939,6 +940,167 @@ function clearAllData() {
 // ════════════════════════════════════════════════════════════════════════════
 //  NAVIGATION
 // ════════════════════════════════════════════════════════════════════════════
+function detectCalendarConflicts(events){
+
+    const conflicts=[];
+
+    const sorted=[...events].sort(
+        (a,b)=>new Date(a.start.dateTime)-new Date(b.start.dateTime)
+    );
+
+
+ function showConflictDialog(){
+
+    const modal=document.getElementById("conflictModal");
+
+    const list=document.getElementById("conflictList");
+
+    list.innerHTML="";
+
+    document.getElementById("conflictCount").textContent=
+        calendarConflicts.length+" conflicts detected.";
+
+    calendarConflicts.forEach((c,index)=>{
+
+        list.innerHTML+=`
+
+        <div class="conflict-card">
+
+            <b>${c.first.summary}</b><br>
+
+            ${new Date(c.first.start.dateTime).toLocaleString()}
+            -
+            ${new Date(c.first.end.dateTime).toLocaleTimeString()}
+
+            <hr>
+
+            <b>${c.second.summary}</b><br>
+
+            ${new Date(c.second.start.dateTime).toLocaleString()}
+            -
+            ${new Date(c.second.end.dateTime).toLocaleTimeString()}
+
+            <br><br>
+
+            <button onclick="resolveConflict(${index},'first')">
+
+                Keep First
+
+            </button>
+
+            <button onclick="resolveConflict(${index},'second')">
+
+                Keep Second
+
+            </button>
+
+            <button onclick="resolveConflict(${index},'both')">
+
+                Keep Both
+
+            </button>
+
+        </div>
+
+        <br>
+
+        `;
+
+    });
+
+    modal.classList.remove("hidden");
+
+}
+
+
+function closeConflictDialog(){
+
+    document
+        .getElementById("conflictModal")
+        .classList.add("hidden");
+
+}
+
+
+async function resolveConflict(index,choice){
+
+    const c=calendarConflicts[index];
+
+    const calId=getCalId();
+
+    if(choice==="first"){
+
+        await gfetch(
+
+            `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calId)}/events/${c.second.id}`,
+
+            {method:"DELETE"}
+
+        );
+
+    }
+
+    else if(choice==="second"){
+
+        await gfetch(
+
+            `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calId)}/events/${c.first.id}`,
+
+            {method:"DELETE"}
+
+        );
+
+    }
+
+    calendarConflicts.splice(index,1);
+
+    if(calendarConflicts.length){
+
+        showConflictDialog();
+
+    }else{
+
+        closeConflictDialog();
+
+        toast(
+            "All conflicts resolved.",
+            "success"
+        );
+
+    }
+
+}
+    for(let i=0;i<sorted.length;i++){
+
+        for(let j=i+1;j<sorted.length;j++){
+
+            const a=sorted[i];
+            const b=sorted[j];
+
+            const aStart=new Date(a.start.dateTime);
+            const aEnd=new Date(a.end.dateTime);
+
+            const bStart=new Date(b.start.dateTime);
+            const bEnd=new Date(b.end.dateTime);
+
+            if(bStart>=aEnd) break;
+
+            if(aEnd>bStart){
+
+                conflicts.push({
+                    first:a,
+                    second:b
+                });
+
+            }
+
+        }
+
+    }
+
+    return conflicts;
+
+}
 function showPage(name) {
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
@@ -1183,6 +1345,15 @@ async function doTwoWaySync() {
     }
 
     const evs = (data.items || []).filter(e => e.start?.dateTime);
+  calendarConflicts = detectCalendarConflicts(evs);
+
+if(calendarConflicts.length){
+
+    showConflictDialog();
+
+    return;
+
+}
 
     console.log("Timed Events:", evs.length);
 
@@ -2348,5 +2519,24 @@ function esc(s)           { return String(s||'').replace(/&/g,'&amp;').replace(/
     <span class="mob-tab-icon">⚙️</span>Settings
   </button>
 </div>
+
+<div id="conflictModal" class="modal hidden">
+
+    <div class="modal-card">
+
+        <h2>Calendar Conflicts</h2>
+
+        <p id="conflictCount"></p>
+
+        <div id="conflictList"></div>
+
+        <button onclick="closeConflictDialog()">
+            Close
+        </button>
+
+    </div>
+
+</div>
+
 </body>
 </html>
