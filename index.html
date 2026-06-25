@@ -1134,46 +1134,152 @@ function updateCalTarget() {
 //  TWO-WAY SYNC
 // ════════════════════════════════════════════════════════════════════════════
 async function doTwoWaySync() {
-  if(!accessToken){ toast('Not connected','error'); return; }
-  const btn  = document.getElementById('sync2w-spin');
+  if (!accessToken) {
+    toast('Not connected', 'error');
+    return;
+  }
+
+  const btn = document.getElementById('sync2w-spin');
   btn.classList.remove('hidden');
+
   try {
-    // Fetch last 2 weeks + next 8 weeks
-    const from = new Date(); from.setDate(from.getDate()-14);
-    const to   = new Date(); to.setDate(to.getDate()+56);
+
+    const from = new Date();
+    from.setDate(from.getDate() - 14);
+
+    const to = new Date();
+    to.setDate(to.getDate() + 56);
+
     const calId = getCalId();
+
+    console.log("========== TWO WAY SYNC ==========");
+    console.log("Using Calendar ID:", calId);
+
     const tMin = encodeURIComponent(from.toISOString());
     const tMax = encodeURIComponent(to.toISOString());
-    const data = await gfetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calId)}/events?timeMin=${tMin}&timeMax=${tMax}&singleEvents=true&orderBy=startTime&maxResults=2500`);
-    const evs = (data.items||[]).filter(e=>e.start?.dateTime);
-    // Extract unique lectures
-    const lecs = evs.filter(e=>classifyEv(e)==='lec');
+
+    const url =
+      `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calId)}/events?timeMin=${tMin}&timeMax=${tMax}&singleEvents=true&orderBy=startTime&maxResults=2500`;
+
+    console.log("Fetching URL:");
+    console.log(url);
+
+    const data = await gfetch(url);
+
+    console.log("Raw API Response:");
+    console.log(data);
+
+    console.log("Number of events returned:",
+      data.items ? data.items.length : 0);
+
+    if (data.items && data.items.length) {
+      console.table(
+        data.items.map(e => ({
+          summary: e.summary,
+          start: e.start?.dateTime || e.start?.date,
+          end: e.end?.dateTime || e.end?.date,
+          location: e.location
+        }))
+      );
+    }
+
+    const evs = (data.items || []).filter(e => e.start?.dateTime);
+
+    console.log("Timed Events:", evs.length);
+
+    evs.forEach((ev, i) => {
+      console.log(
+        `Event ${i + 1}:`,
+        ev.summary,
+        "=>",
+        classifyEv(ev)
+      );
+    });
+
+    const lecs = evs.filter(e => classifyEv(e) === 'lec');
+
+    console.log("Lecture Events:", lecs.length);
+
     const seen = new Set();
     const parsed = [];
-    lecs.forEach(ev=>{
-      const dow=new Date(ev.start.dateTime).getDay();
-      const dayName=DAYS_FULL[dow];
-      const st=ev.start.dateTime.slice(11,16);
-      const en=ev.end.dateTime.slice(11,16);
-      const subj=(ev.summary||'').replace(/^📚\s*/,'').trim();
-      const loc=ev.location||'';
-      const key=`${dayName}|${subj}|${st}|${en}`;
-      if(!seen.has(key)){ seen.add(key); parsed.push({subject:subj,day:dayName,start:st,end:en,location:loc}); }
-    });
-    if(parsed.length){
-      S.lectures = parsed;
-      rebuildLecTable();
-      updateLecCount();
-      renderAll();
-      save();
-      toast(`Two-way sync: loaded ${parsed.length} unique lectures`,'success');
-    } else {
-      toast('No StudySync lectures found in calendar. Your editor is up to date.','info');
-    }
-  } catch(e){ toast('Two-way sync failed: '+e.message,'error'); }
-  finally{ btn.classList.add('hidden'); }
-}
 
+    lecs.forEach(ev => {
+
+      const dow = new Date(ev.start.dateTime).getDay();
+
+      const dayName = DAYS_FULL[dow];
+
+      const st = ev.start.dateTime.slice(11, 16);
+
+      const en = ev.end.dateTime.slice(11, 16);
+
+      const subj = (ev.summary || "").trim();
+
+      const loc = ev.location || "";
+
+      const key =
+        `${dayName}|${subj}|${st}|${en}`;
+
+      if (!seen.has(key)) {
+        seen.add(key);
+
+        parsed.push({
+          subject: subj,
+          day: dayName,
+          start: st,
+          end: en,
+          location: loc
+        });
+      }
+    });
+
+    console.log("Parsed Lectures:");
+    console.table(parsed);
+
+    if (parsed.length) {
+
+      S.lectures = parsed;
+
+      rebuildLecTable();
+
+      updateLecCount();
+
+      renderAll();
+
+      save();
+
+      toast(
+        `Loaded ${parsed.length} lectures`,
+        'success'
+      );
+
+    } else {
+
+      toast(
+        'No lectures parsed.',
+        'warn'
+      );
+
+    }
+
+  } catch (e) {
+
+    console.error("SYNC ERROR");
+    console.error(e);
+
+    toast(
+      'Two-way sync failed: ' + e.message,
+      'error'
+    );
+
+  } finally {
+
+    btn.classList.add('hidden');
+
+    console.log("========== END ==========");
+
+  }
+}
 // ════════════════════════════════════════════════════════════════════════════
 //  RENDER ALL
 // ════════════════════════════════════════════════════════════════════════════
