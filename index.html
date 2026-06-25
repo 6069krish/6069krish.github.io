@@ -1758,14 +1758,23 @@ async function fetchCalEvents() {
   } catch(e){ toast('Fetch failed: '+e.message,'error'); }
   finally{ btn.disabled=false; spin.classList.add('hidden'); }
 }
-
 function classifyEv(ev) {
-  const s=ev.summary||'';
-  if(s.startsWith('📚')) return 'lec';
-  if(/^[\u{1F4D0}\u{1F501}\u{1F4CA}\u{1F5E3}\u{1F4D6}\u{1F3C3}\u{1F4DD}\u{1F9D8}\u{1F4CC}\u23F0\u{1F3AF}\u270F\uFE0F\u{1F4AA}\u{1F9E0}\u{1F4D2}\u{1F58A}\uFE0F\u{1F50D}]/u.test(s)) return 'blk';
-  return 'other';
-}
 
+    const s = (ev.summary || "").trim();
+
+    // Block events created by StudySync
+    const blockEmojis = [
+        "📐","🔁","📊","🗣","📖","🏃",
+        "📝","🧘","📌","⏰","🎯",
+        "✏️","💪","🧠","📒","🖊️","🔍"
+    ];
+
+    if (blockEmojis.some(e => s.startsWith(e)))
+        return "blk";
+
+    // Everything else is treated as a lecture
+    return "lec";
+}
 function buildRetUI(from,to) {
   const lecs=retEvents.filter(e=>classifyEv(e)==='lec');
   const blks=retEvents.filter(e=>classifyEv(e)==='blk');
