@@ -1120,9 +1120,8 @@ async function ensureStudySyncCalendar() {
     document.getElementById('dash-cal-name').textContent = 'StudySync calendar';
   } catch(e){ toast('Could not get/create StudySync calendar: '+e.message,'warn'); }
 }
-
 function getCalId() {
-  return S.calTarget==='studysync' && studySyncCalId ? studySyncCalId : 'primary';
+  return 'primary';
 }
 
 function updateCalTarget() {
