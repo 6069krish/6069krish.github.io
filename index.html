@@ -940,7 +940,13 @@ function clearAllData() {
 // ════════════════════════════════════════════════════════════════════════════
 //  NAVIGATION
 // ════════════════════════════════════════════════════════════════════════════
+function detectCalendarConflicts(events){
 
+    const conflicts=[];
+
+    const sorted=[...events].sort(
+        (a,b)=>new Date(a.start.dateTime)-new Date(b.start.dateTime)
+    );
 
 
  function showConflictDialog(){
@@ -1109,13 +1115,6 @@ if(conflicts.length){
     return conflicts;
 
 }
-function detectCalendarConflicts(events){
-
-    const conflicts=[];
-
-    const sorted=[...events].sort(
-        (a,b)=>new Date(a.start.dateTime)-new Date(b.start.dateTime)
-    );
 function showPage(name) {
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
