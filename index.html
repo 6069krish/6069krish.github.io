@@ -940,14 +940,6 @@ function clearAllData() {
 // ════════════════════════════════════════════════════════════════════════════
 //  NAVIGATION
 // ════════════════════════════════════════════════════════════════════════════
-function detectCalendarConflicts(events){
-
-    const conflicts=[];
-
-    const sorted=[...events].sort(
-        (a,b)=>new Date(a.start.dateTime)-new Date(b.start.dateTime)
-    );
-
 
  function showConflictDialog(){
 
@@ -1012,6 +1004,46 @@ function detectCalendarConflicts(events){
 
 }
 
+// ════════════════════════════════════════════════════════════════════════════
+//  CALENDAR CONFLICT DETECTION
+// ════════════════════════════════════════════════════════════════════════════
+
+// Detect overlapping events
+function detectCalendarConflicts(events) {
+
+    const conflicts = [];
+
+    const sorted = [...events].sort(
+        (a, b) =>
+            new Date(a.start.dateTime) -
+            new Date(b.start.dateTime)
+    );
+
+    for (let i = 0; i < sorted.length; i++) {
+
+        for (let j = i + 1; j < sorted.length; j++) {
+
+            const a = sorted[i];
+            const b = sorted[j];
+
+            const aEnd = new Date(a.end.dateTime);
+            const bStart = new Date(b.start.dateTime);
+
+            if (bStart >= aEnd)
+                break;
+
+            conflicts.push({
+                first: a,
+                second: b
+            });
+
+        }
+
+    }
+
+    return conflicts;
+
+}
 
 function closeConflictDialog(){
 
@@ -1114,7 +1146,6 @@ if(conflicts.length){
 
     return conflicts;
 
-}
 function showPage(name) {
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
@@ -1358,12 +1389,15 @@ async function doTwoWaySync() {
       );
     }
 
-    const evs = (data.items || []).filter(e => e.start?.dateTime);
-  calendarConflicts = detectCalendarConflicts(evs);
+const evs = (data.items || []).filter(e => e.start?.dateTime);
 
-if(calendarConflicts.length){
+calendarConflicts = detectCalendarConflicts(evs);
+
+if (calendarConflicts.length) {
 
     showConflictDialog();
+
+    btn.classList.add("hidden");
 
     return;
 
@@ -2534,7 +2568,7 @@ function esc(s)           { return String(s||'').replace(/&/g,'&amp;').replace(/
   </button>
 </div>
 
-<div id="conflictModal" class="modal hidden">
+<div id="conflictModal" class="hidden">
 
     <div class="modal-card">
 
