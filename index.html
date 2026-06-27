@@ -944,34 +944,20 @@ function clearAllData() {
  // ════════════════════════════════════════════════════════════════════════════
 // NAVIGATION
 // ════════════════════════════════════════════════════════════════════════════
-function showPage(pageId) {
-
-    // Hide all pages
-    document.querySelectorAll(".page").forEach(page => {
-        page.classList.add("hidden");
-    });
-
-    // Show selected page
-    const page = document.getElementById(pageId);
-    if (page) {
-        page.classList.remove("hidden");
-    }
-
-    // Highlight active navigation button
-    document.querySelectorAll("[data-page]").forEach(btn => {
-        btn.classList.remove("active");
-    });
-
-    const activeBtn = document.querySelector(`[data-page="${pageId}"]`);
-    if (activeBtn) {
-        activeBtn.classList.add("active");
-    }
-
-    // Remember last opened page
-    localStorage.setItem("currentPage", pageId);
-
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  document.getElementById('tab-'+name).classList.add('active');
+  updateMobNav(name);
+  if(name==='analytics') renderAnalytics();
+  if(name==='timetable'){ renderHourGrid(); detectConflicts(); }
+  if(name==='calendar')  renderBlockSelector();
+  if(name==='dashboard'){ renderDashboard(); renderPreview('dash-week-grid'); }
+  if(name==='settings')  updateFpsLabel();
 }
-
+function showModal(id)  { document.getElementById(id).classList.remove('hidden'); }
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 // ════════════════════════════════════════════════════════════════════════════
 //  CALENDAR CONFLICT DETECTION
 // ════════════════════════════════════════════════════════════════════════════
