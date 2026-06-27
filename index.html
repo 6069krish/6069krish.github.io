@@ -941,7 +941,51 @@ function clearAllData() {
 //  NAVIGATION
 // ════════════════════════════════════════════════════════════════════════════
 
- function showConflictDialog(){
+ 
+
+// ════════════════════════════════════════════════════════════════════════════
+//  CALENDAR CONFLICT DETECTION
+// ════════════════════════════════════════════════════════════════════════════
+
+// Detect overlapping events
+function detectCalendarConflicts(events){
+
+    const conflicts=[];
+
+    const sorted=[...events].sort(
+        (a,b)=>new Date(a.start.dateTime)-new Date(b.start.dateTime)
+    );
+
+    for(let i=0;i<sorted.length;i++){
+
+        for(let j=i+1;j<sorted.length;j++){
+
+            const a=sorted[i];
+            const b=sorted[j];
+
+            const aEnd=new Date(a.end.dateTime);
+            const bStart=new Date(b.start.dateTime);
+
+            if(bStart>=aEnd) break;
+
+            if(aEnd>bStart){
+
+                conflicts.push({
+                    first:a,
+                    second:b
+                });
+
+            }
+
+        }
+
+    }
+
+    return conflicts;
+
+}
+
+function showConflictDialog(){
 
     const modal=document.getElementById("conflictModal");
 
@@ -1004,161 +1048,77 @@ function clearAllData() {
 
 }
 
-// ════════════════════════════════════════════════════════════════════════════
-//  CALENDAR CONFLICT DETECTION
-// ════════════════════════════════════════════════════════════════════════════
-
-// Detect overlapping events
-function detectCalendarConflicts(events) {
-
-    const conflicts = [];
-
-    const sorted = [...events].sort(
-        (a, b) =>
-            new Date(a.start.dateTime) -
-            new Date(b.start.dateTime)
-    );
-
-    for (let i = 0; i < sorted.length; i++) {
-
-        for (let j = i + 1; j < sorted.length; j++) {
-
-            const a = sorted[i];
-            const b = sorted[j];
-
-            const aEnd = new Date(a.end.dateTime);
-            const bStart = new Date(b.start.dateTime);
-
-            if (bStart >= aEnd)
-                break;
-
-            conflicts.push({
-                first: a,
-                second: b
-            });
-
-        }
-
-    }
-
-    return conflicts;
-
-}
-
 function closeConflictDialog(){
 
+
+
     document
+
         .getElementById("conflictModal")
+
         .classList.add("hidden");
 
+
+
 }
 
 
-async function resolveConflict(index,choice){
 
-    const c=calendarConflicts[index];
 
-    const calId=getCalId();
 
-    if(choice==="first"){
+async function resolveConflict(index, choice) {
 
-        await gfetch(
+    const c = calendarConflicts[index];
+    const calId = getCalId();
 
-            `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calId)}/events/${c.second.id}`,
+    try {
 
-            {method:"DELETE"}
+        if (choice === "first") {
 
-        );
+            await gfetch(
+                `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calId)}/events/${c.second.id}`,
+                { method: "DELETE" }
+            );
 
-    }
+        } else if (choice === "second") {
 
-    else if(choice==="second"){
+            await gfetch(
+                `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calId)}/events/${c.first.id}`,
+                { method: "DELETE" }
+            );
 
-        await gfetch(
+        }
+        // "both" means keep both events, so no deletion.
 
-            `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calId)}/events/${c.first.id}`,
+        // Remove this conflict from the displayed list
+        calendarConflicts.splice(index, 1);
 
-            {method:"DELETE"}
+        if (calendarConflicts.length > 0) {
 
-        );
+            showConflictDialog();
 
-    }
+        } else {
 
-    calendarConflicts.splice(index,1);
-
-    const duplicates = detectDuplicateEvents(evs);
-
-const conflicts = detectCalendarConflicts(evs);
-
-if(duplicates.length){
-
-    showDuplicateDialog(duplicates);
-
-    return;
-
-}
-
-if(conflicts.length){
-
-    showConflictDialog(conflicts);
-
-    return;
-
-}else{
-
-        closeConflictDialog();
-
-        toast(
-            "All conflicts resolved.",
-            "success"
-        );
-
-    }
-
-}
-    for(let i=0;i<sorted.length;i++){
-
-        for(let j=i+1;j<sorted.length;j++){
-
-            const a=sorted[i];
-            const b=sorted[j];
-
-            const aStart=new Date(a.start.dateTime);
-            const aEnd=new Date(a.end.dateTime);
-
-            const bStart=new Date(b.start.dateTime);
-            const bEnd=new Date(b.end.dateTime);
-
-            if(bStart>=aEnd) break;
-
-            if(aEnd>bStart){
-
-                conflicts.push({
-                    first:a,
-                    second:b
-                });
-
-            }
+            closeConflictDialog();
 
         }
 
+        // Refresh everything
+        await doTwoWaySync();
+
+        toast("Conflict resolved.", "success");
+
+    } catch (err) {
+
+        console.error(err);
+
+        toast(
+            "Failed to resolve conflict: " + err.message,
+            "error"
+        );
+
     }
 
-    return conflicts;
-
-function showPage(name) {
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
-  const page=document.getElementById('page-'+name);
-  const tab=document.getElementById('tab-'+name);
-  if(page) page.classList.add('active');
-  if(tab) tab.classList.add('active');
-  if(typeof updateMobNav==='function') updateMobNav(name);
-  if(name==='analytics' && typeof renderAnalytics==='function') renderAnalytics();
-  if(name==='timetable'){ if(typeof renderHourGrid==='function') renderHourGrid(); if(typeof detectConflicts==='function') detectConflicts(); }
-  if(name==='calendar' && typeof renderBlockSelector==='function') renderBlockSelector();
-  if(name==='dashboard'){ if(typeof renderDashboard==='function') renderDashboard(); if(typeof renderPreview==='function') renderPreview('dash-week-grid'); }
-  if(name==='settings' && typeof updateFpsLabel==='function') updateFpsLabel();
 }
 function showModal(id)  { document.getElementById(id).classList.remove('hidden'); }
 function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
