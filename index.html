@@ -562,6 +562,7 @@ async function initGoogle() {
   console.log("Client ID Length:", cid.length);
   console.log("Client ID:", JSON.stringify(cid));
 
+  alert("CLIENT ID = " + cid);
   const client = google.accounts.oauth2.initTokenClient({
     client_id: cid,
     scope: GCAL_SCOPE,
