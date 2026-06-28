@@ -512,32 +512,75 @@ function applyTheme(){
 }
 function toggleTheme(){S.theme=S.theme==='dark'?'light':'dark';applyTheme();save();}
 
-async function initGoogle(){
-  const cid=document.getElementById('gcal-cid').value.trim();
-  if(!cid){toast('Paste your Client ID first','error');return;}
-  if(!window.google){toast('Google script is still loading','warn');return;}
-  localStorage.setItem('gcal_cid',cid);
-  const client=google.accounts.oauth2.initTokenClient({
-    client_id:cid,
-    scope:GCAL_SCOPE,
-    callback:async resp=>{
-      if(resp.error){toast('Auth error: '+resp.error,'error');return;}
-      accessToken=resp.access_token;
-      document.getElementById('dash-auth-area').classList.add('hidden');
-      document.getElementById('dash-connected').classList.remove('hidden');
-      document.getElementById('nav-conn-badge').textContent='Connected';
-      document.getElementById('nav-conn-badge').style.color='var(--green)';
-      document.getElementById('cal-no-auth').classList.add('hidden');
-      document.getElementById('cal-auth-panel').classList.remove('hidden');
-      document.getElementById('ret-no-auth').classList.add('hidden');
-      document.getElementById('ret-auth-panel').classList.remove('hidden');
-      document.getElementById('sync-btn').disabled=false;
-      await ensureStudySyncCalendar();
-      renderBlockSelector();
-      toast('Google Calendar connected','success');
+function cleanClientId(value) {
+  return String(value || '')
+    .replace(/[\s\u200B-\u200D\uFEFF]/g, '')
+    .trim();
+}
+
+async function initGoogle() {
+  const cidInput = document.getElementById('gcal-cid');
+  const cid = cleanClientId(cidInput.value);
+  cidInput.value = cid;
+
+  if (!cid) {
+    toast('Paste your Client ID first', 'error');
+    return;
+  }
+
+  if (!/^[0-9]+-[a-z0-9_-]+\.apps\.googleusercontent\.com$/i.test(cid)) {
+    toast('Client ID format looks wrong. Paste the Web application Client ID only.', 'error');
+    return;
+  }
+
+  if (location.protocol === 'file:') {
+    toast('Google sign-in must run from http://localhost:8080 or your GitHub Pages URL, not file://', 'error');
+    return;
+  }
+
+  if (!window.google) {
+    toast('Google script loading — wait a moment', 'warn');
+    return;
+  }
+
+  localStorage.setItem('gcal_cid', cid);
+
+  const client = google.accounts.oauth2.initTokenClient({
+    client_id: cid,
+    scope: GCAL_SCOPE,
+    callback: async (resp) => {
+      if (resp.error) {
+        toast('Auth error: ' + resp.error, 'error');
+        return;
+      }
+
+      accessToken = resp.access_token;
+
+      try {
+        document.getElementById('dash-auth-area').classList.add('hidden');
+        document.getElementById('dash-connected').classList.remove('hidden');
+        document.getElementById('dash-email').textContent = 'Google Connected';
+
+        await ensureStudySyncCalendar();
+
+        document.getElementById('nav-conn-badge').textContent = 'Connected';
+        document.getElementById('nav-conn-badge').style.background = 'var(--green-dim)';
+        document.getElementById('nav-conn-badge').style.color = 'var(--green)';
+
+        document.getElementById('cal-no-auth')?.classList.add('hidden');
+        document.getElementById('cal-auth-panel')?.classList.remove('hidden');
+        document.getElementById('ret-no-auth')?.classList.add('hidden');
+        document.getElementById('ret-auth-panel')?.classList.remove('hidden');
+        document.getElementById('sync-btn').disabled = false;
+
+        toast('Google Calendar connected', 'success');
+      } catch (e) {
+        toast('Google Auth Error: ' + e.message, 'error');
+      }
     }
   });
-  client.requestAccessToken({prompt:'consent'});
+
+  client.requestAccessToken({ prompt: 'consent' });
 }
 function signOut(){
   accessToken=null;studySyncCalId=null;
