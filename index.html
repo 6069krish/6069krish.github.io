@@ -129,7 +129,7 @@ button{cursor:pointer}
         
         <div class="row">
           <input class="input" id="gcal-cid" placeholder="xxxxxx.apps.googleusercontent.com" style="flex:1;min-width:240px">
-          <button class="btn btn-primary" onclick="initGoogle()">Sign in with Google</button>
+          <button class="btn btn-primary" onclick="alert('button clicked'); initGoogle()">Sign in with Google</button>
           <button class="btn btn-outline" onclick="clearSavedClientId()">Clear saved ID</button>
         </div>
       </div>
@@ -530,6 +530,7 @@ function clearSavedClientId() {
 }
 
 async function initGoogle() {
+  alert("initGoogle() started");
   const cidInput = document.getElementById('gcal-cid');
 
   // IMPORTANT: removes hidden spaces/newlines from copied Google Client IDs.
