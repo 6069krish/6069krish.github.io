@@ -559,6 +559,8 @@ async function initGoogle() {
   }
 
   localStorage.setItem('gcal_cid', cid);
+  console.log("Client ID Length:", cid.length);
+  console.log("Client ID:", JSON.stringify(cid));
 
   const client = google.accounts.oauth2.initTokenClient({
     client_id: cid,
