@@ -5,583 +5,283 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>StudySync</title>
 <style>
-/* ── TOKENS ─────────────────────────────────────────────────────────────── */
-:root {
-  --bg:#0d0d12; --bg2:#13131a; --surface:#1a1a24; --surface2:#22222f;
-  --surface3:#2a2a3a; --border:rgba(255,255,255,0.07); --border2:rgba(255,255,255,0.13);
-  --text:#eeeef5; --text2:#a0a0b8; --text3:#6060788;
-  --accent:#7b68ee; --accent2:#9d8ff5; --accent-dim:rgba(123,104,238,0.15);
-  --green:#34d399; --green-dim:rgba(52,211,153,0.12);
-  --amber:#fbbf24; --amber-dim:rgba(251,191,36,0.12);
-  --red:#f87171; --red-dim:rgba(248,113,113,0.12);
-  --blue:#60a5fa; --blue-dim:rgba(96,165,250,0.12);
-  --r:10px; --r-sm:7px; --r-xs:5px;
-  --shadow:0 4px 24px rgba(0,0,0,0.4);
-  --transition:0.15s ease;
+:root{
+  --bg:#0d0f14;--bg2:#141821;--surface:rgba(24,28,38,.82);--surface2:rgba(34,39,52,.78);--surface3:#2c3344;
+  --border:rgba(255,255,255,.09);--border2:rgba(255,255,255,.16);--text:#f3f5fa;--text2:#a6adbd;
+  --accent:#7c6df2;--accent2:#a79cff;--accent-dim:rgba(124,109,242,.16);
+  --green:#34d399;--green-dim:rgba(52,211,153,.13);--amber:#fbbf24;--amber-dim:rgba(251,191,36,.13);
+  --red:#fb7185;--red-dim:rgba(251,113,133,.13);--blue:#60a5fa;--blue-dim:rgba(96,165,250,.13);
+  --r:10px;--r-sm:8px;--shadow:0 18px 60px rgba(0,0,0,.28);--transition:.18s ease;
 }
-[data-theme="light"] {
-  --bg:#f4f4f8; --bg2:#ebebf2; --surface:#fff; --surface2:#f0f0f6;
-  --surface3:#e8e8f0; --border:rgba(0,0,0,0.08); --border2:rgba(0,0,0,0.14);
-  --text:#18181f; --text2:#555568; --shadow:0 4px 24px rgba(0,0,0,0.1);
+[data-theme="light"]{
+  --bg:#f6f7fb;--bg2:#eef1f7;--surface:rgba(255,255,255,.86);--surface2:rgba(246,247,251,.9);--surface3:#e7eaf2;
+  --border:rgba(20,25,35,.09);--border2:rgba(20,25,35,.16);--text:#171923;--text2:#5b6475;--shadow:0 18px 50px rgba(20,25,35,.10);
 }
-
-/* ── RESET ───────────────────────────────────────────────────────────────── */
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6;font-size:15px;transition:background var(--transition),color var(--transition)}
-a{color:var(--accent2);text-decoration:none}
-a:hover{text-decoration:underline}
-button{cursor:pointer;font-family:inherit}
-code{font-family:'Fira Code',monospace;font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--accent2)}
-hr{border:none;border-top:1px solid var(--border);margin:1.25rem 0}
-input,select,textarea{font-family:inherit}
-
-/* ── NAV ─────────────────────────────────────────────────────────────────── */
-#nav{position:sticky;top:0;z-index:200;background:var(--bg);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:.75rem 1.5rem;gap:12px}
-.nav-logo{font-size:1.1rem;font-weight:800;letter-spacing:-.5px;background:linear-gradient(135deg,var(--accent2),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.nav-tabs{display:flex;gap:2px;background:var(--surface2);border-radius:var(--r-sm);padding:3px}
-.nav-tab{padding:5px 14px;border-radius:var(--r-xs);font-size:13px;font-weight:500;border:none;background:transparent;color:var(--text2);transition:all var(--transition)}
-.nav-tab.active{background:var(--surface);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,0.2)}
-.nav-actions{display:flex;gap:8px;align-items:center}
-.nav-badge{font-size:11px;padding:3px 9px;border-radius:20px;background:var(--accent-dim);color:var(--accent2);border:1px solid rgba(123,104,238,0.25)}
-#theme-btn{background:none;border:1px solid var(--border2);color:var(--text2);width:32px;height:32px;border-radius:var(--r-xs);display:flex;align-items:center;justify-content:center;font-size:15px;transition:all var(--transition)}
-#theme-btn:hover{color:var(--text);border-color:var(--accent)}
-
-/* ── LAYOUT ──────────────────────────────────────────────────────────────── */
-#app{max-width:1100px;margin:0 auto;padding:1.5rem 1.25rem 5rem}
-.page{display:none}
-.page.active{display:block}
-
-/* ── CARDS / PANELS ──────────────────────────────────────────────────────── */
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem}
-.card+.card{margin-top:1rem}
-.card-title{font-size:14px;font-weight:700;letter-spacing:.2px;margin-bottom:1rem;display:flex;align-items:center;gap:8px;color:var(--text)}
-.card-title .ct-icon{width:28px;height:28px;border-radius:var(--r-xs);display:flex;align-items:center;justify-content:center;font-size:14px;background:var(--accent-dim)}
-
-/* ── BUTTONS ─────────────────────────────────────────────────────────────── */
-.btn{display:inline-flex;align-items:center;gap:6px;padding:.45rem 1rem;border-radius:var(--r-sm);font-size:13px;font-weight:500;border:none;transition:all var(--transition);white-space:nowrap;line-height:1.4}
-.btn-primary{background:var(--accent);color:#fff}
-.btn-primary:hover:not(:disabled){background:#6a58d8;transform:translateY(-1px)}
-.btn-green{background:var(--green);color:#000;font-weight:600}
-.btn-green:hover:not(:disabled){background:#2ec48a;transform:translateY(-1px)}
-.btn-outline{background:transparent;color:var(--text);border:1px solid var(--border2)}
-.btn-outline:hover{border-color:var(--accent);color:var(--accent2)}
-.btn-ghost{background:transparent;color:var(--text2);border:none}
-.btn-ghost:hover{color:var(--text);background:var(--surface2)}
-.btn-red{background:transparent;color:var(--red);border:1px solid rgba(248,113,113,0.3)}
-.btn-red:hover{background:var(--red-dim)}
-.btn-danger{background:var(--red);color:#fff}
-.btn-danger:hover:not(:disabled){background:#e55;transform:translateY(-1px)}
-.btn-sm{padding:.3rem .7rem;font-size:12px}
-.btn-xs{padding:.2rem .5rem;font-size:11px;border-radius:4px}
-.btn:disabled{opacity:.35;cursor:not-allowed;transform:none!important}
-.btn-icon{width:30px;height:30px;padding:0;justify-content:center;border-radius:var(--r-xs)}
-
-/* ── INPUTS ──────────────────────────────────────────────────────────────── */
-.input{background:var(--surface2);border:1px solid var(--border2);color:var(--text);border-radius:var(--r-sm);padding:.5rem .8rem;font-size:13px;outline:none;transition:border-color var(--transition);width:100%}
-.input:focus{border-color:var(--accent)}
-.input-sm{padding:.3rem .6rem;font-size:12px}
-label.lbl{font-size:11px;color:var(--text2);display:block;margin-bottom:4px;font-weight:500;text-transform:uppercase;letter-spacing:.4px}
-select.input option{background:var(--surface2)}
-
-/* ── CHIPS / BADGES ──────────────────────────────────────────────────────── */
-.chip{display:inline-flex;align-items:center;gap:5px;font-size:12px;padding:3px 9px;border-radius:20px}
-.chip-green{background:var(--green-dim);color:var(--green);border:1px solid rgba(52,211,153,0.2)}
-.chip-red{background:var(--red-dim);color:var(--red);border:1px solid rgba(248,113,113,0.2)}
-.chip-amber{background:var(--amber-dim);color:var(--amber);border:1px solid rgba(251,191,36,0.2)}
-.chip-blue{background:var(--blue-dim);color:var(--blue);border:1px solid rgba(96,165,250,0.2)}
-.chip-accent{background:var(--accent-dim);color:var(--accent2);border:1px solid rgba(123,104,238,0.2)}
-.dot{width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block}
-
-/* ── ALERTS ──────────────────────────────────────────────────────────────── */
-.alert{padding:.7rem 1rem;border-radius:var(--r-sm);font-size:13px;display:flex;gap:8px;align-items:flex-start;line-height:1.5}
-.alert-info{background:var(--accent-dim);color:var(--accent2);border:1px solid rgba(123,104,238,0.2)}
-.alert-warn{background:var(--amber-dim);color:var(--amber);border:1px solid rgba(251,191,36,0.2)}
-.alert-success{background:var(--green-dim);color:var(--green);border:1px solid rgba(52,211,153,0.2)}
-.alert-error{background:var(--red-dim);color:var(--red);border:1px solid rgba(248,113,113,0.2)}
-
-/* ── ROW / FLEX HELPERS ──────────────────────────────────────────────────── */
-.row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.col{display:flex;flex-direction:column;gap:6px}
-.spacer{flex:1}
-
-/* ── MODALS ──────────────────────────────────────────────────────────────── */
-.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.65);display:flex;align-items:center;justify-content:center;z-index:500;backdrop-filter:blur(4px);padding:1rem}
-.modal{background:var(--surface);border:1px solid var(--border2);border-radius:var(--r);padding:1.5rem;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow)}
-.modal-lg{max-width:680px}
-.modal-title{font-size:1rem;font-weight:700;margin-bottom:.75rem}
-.modal-footer{display:flex;gap:8px;justify-content:flex-end;margin-top:1.25rem;padding-top:1rem;border-top:1px solid var(--border)}
+*,*:before,*:after{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh;background:radial-gradient(circle at top left,rgba(124,109,242,.16),transparent 32%),linear-gradient(180deg,var(--bg),var(--bg2));color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif;font-size:15px;line-height:1.5}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
 .hidden{display:none!important}
+#toast-stack{position:fixed;right:20px;bottom:20px;z-index:900;display:grid;gap:8px;max-width:340px}
+.toast{padding:11px 14px;border:1px solid var(--border2);border-radius:var(--r-sm);background:var(--surface);box-shadow:var(--shadow);font-size:13px;animation:in .2s ease}
+.toast.success{color:var(--green)}.toast.error{color:var(--red)}.toast.warn{color:var(--amber)}
+@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 
-/* ── TOASTS ──────────────────────────────────────────────────────────────── */
-#toast-stack{position:fixed;bottom:24px;right:24px;z-index:600;display:flex;flex-direction:column;gap:8px;max-width:320px}
-.toast{padding:10px 16px;border-radius:var(--r-sm);font-size:13px;font-weight:500;box-shadow:var(--shadow);animation:toastIn .2s ease;display:flex;align-items:center;gap:8px}
-.toast-success{background:var(--green-dim);color:var(--green);border:1px solid rgba(52,211,153,0.3)}
-.toast-error{background:var(--red-dim);color:var(--red);border:1px solid rgba(248,113,113,0.3)}
-.toast-info{background:var(--surface2);color:var(--text);border:1px solid var(--border2)}
-.toast-warn{background:var(--amber-dim);color:var(--amber);border:1px solid rgba(251,191,36,0.3)}
-@keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:none}}
+#nav{position:sticky;top:0;z-index:300;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 20px;background:rgba(12,15,22,.72);border-bottom:1px solid var(--border);backdrop-filter:blur(18px)}
+[data-theme="light"] #nav{background:rgba(255,255,255,.76)}
+.nav-logo{font-weight:850;letter-spacing:-.03em;font-size:18px;background:linear-gradient(120deg,var(--accent2),var(--green));-webkit-background-clip:text;background-clip:text;color:transparent}
+.nav-tabs{display:flex;gap:3px;padding:4px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-sm)}
+.nav-tab{position:relative;border:0;background:transparent;color:var(--text2);padding:7px 13px;border-radius:7px;font-size:13px;font-weight:650;transition:var(--transition)}
+.nav-tab:hover,.nav-tab.active{background:var(--surface);color:var(--text)}
+.nav-actions{display:flex;align-items:center;gap:8px}
+.badge{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;border-radius:99px;background:var(--red);color:white;font-size:11px;font-weight:800;margin-left:5px}
+.nav-badge{font-size:12px;color:var(--text2);border:1px solid var(--border2);border-radius:99px;padding:5px 10px;background:var(--surface)}
+#app{max-width:1180px;margin:0 auto;padding:22px 18px 90px}
+.page{display:none}.page.active{display:block;animation:in .2s ease}
 
-/* ── PROGRESS ────────────────────────────────────────────────────────────── */
-.progress{height:4px;background:var(--surface2);border-radius:2px;overflow:hidden}
-.progress-bar{height:100%;background:linear-gradient(90deg,var(--accent),var(--green));border-radius:2px;transition:width .3s}
-.progress-sm{height:3px}
-
-/* ── SPINNER ─────────────────────────────────────────────────────────────── */
-@keyframes spin{to{transform:rotate(360deg)}}
-.spin{width:14px;height:14px;border:2px solid rgba(255,255,255,.2);border-top-color:currentColor;border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
-.spin-dark{border-color:rgba(0,0,0,.15);border-top-color:#000}
-
-/* ── LOG BOX ─────────────────────────────────────────────────────────────── */
-.log-box{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-sm);padding:.75rem 1rem;font-size:11px;font-family:'Fira Code',monospace;line-height:1.9;max-height:180px;overflow-y:auto;color:var(--text2)}
-.log-ok{color:var(--green)}
-.log-err{color:var(--red)}
-.log-warn{color:var(--amber)}
-
-/* ── STAT BOXES ──────────────────────────────────────────────────────────── */
-.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin:1rem 0}
-.stat-box{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-sm);padding:.85rem 1rem;text-align:center}
-.stat-num{font-size:1.6rem;font-weight:800;line-height:1}
-.stat-label{font-size:11px;color:var(--text2);margin-top:4px}
-.stat-sub{font-size:10px;color:var(--text2);opacity:.7}
-
-/* ── WEEK GRID ───────────────────────────────────────────────────────────── */
-.week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
-.day-col{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-sm);overflow:hidden;min-height:60px}
-.day-col.today{border-color:rgba(123,104,238,.5);box-shadow:0 0 0 1px rgba(123,104,238,.2)}
-.day-head{font-size:10px;font-weight:700;text-align:center;padding:5px 3px;border-bottom:1px solid var(--border);color:var(--text2);text-transform:uppercase;letter-spacing:.4px}
-.day-head.today-head{color:var(--accent2)}
-.day-body{padding:3px;display:flex;flex-direction:column;gap:2px}
-.ev{font-size:10px;padding:3px 5px;border-radius:3px;line-height:1.3;overflow:hidden;cursor:default}
-.ev-title{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ev-time{opacity:.7;font-size:9px}
-.ev-lec{background:rgba(123,104,238,.2);color:var(--accent2);border-left:2px solid var(--accent)}
+.card,.review-card,.modal{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);backdrop-filter:blur(18px)}
+.card{padding:18px}.card+.card{margin-top:14px}
+.card-title{display:flex;align-items:center;gap:9px;margin-bottom:14px;font-weight:780;font-size:15px}
+.ct-icon{width:29px;height:29px;border-radius:8px;display:grid;place-items:center;background:var(--accent-dim);color:var(--accent2);font-weight:850}
+.row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.col{display:grid;gap:6px}.spacer{flex:1}
+.lbl{display:block;font-size:11px;color:var(--text2);font-weight:750;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
+.input{width:100%;border:1px solid var(--border2);background:var(--surface2);color:var(--text);border-radius:8px;padding:9px 11px;outline:0}
+.input:focus{border-color:var(--accent)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:0;border-radius:8px;padding:8px 13px;font-size:13px;font-weight:700;white-space:nowrap;transition:var(--transition)}
+.btn:hover:not(:disabled){transform:translateY(-1px)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn-primary{background:var(--accent);color:white}.btn-green{background:var(--green);color:#06120c}.btn-danger{background:var(--red);color:white}
+.btn-outline{background:transparent;color:var(--text);border:1px solid var(--border2)}.btn-ghost{background:transparent;color:var(--text2)}
+.btn-red{background:transparent;color:var(--red);border:1px solid rgba(251,113,133,.35)}
+.btn-sm{padding:6px 10px;font-size:12px}.btn-icon{width:34px;height:34px;padding:0}
+.chip{display:inline-flex;align-items:center;gap:6px;border-radius:99px;padding:4px 9px;font-size:12px;font-weight:700;border:1px solid var(--border2)}
+.chip-green{background:var(--green-dim);color:var(--green)}.chip-red{background:var(--red-dim);color:var(--red)}
+.chip-amber{background:var(--amber-dim);color:var(--amber)}.chip-blue{background:var(--blue-dim);color:var(--blue)}
+.chip-accent{background:var(--accent-dim);color:var(--accent2)}
+.dot{width:7px;height:7px;border-radius:50%;background:currentColor;display:inline-block}
+.alert{border:1px solid var(--border2);border-radius:8px;padding:11px 13px;font-size:13px;background:var(--surface2);color:var(--text2)}
+.alert-success{background:var(--green-dim);color:var(--green)}.alert-warn{background:var(--amber-dim);color:var(--amber)}
+.alert-error{background:var(--red-dim);color:var(--red)}.alert-info{background:var(--accent-dim);color:var(--accent2)}
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.stat-box{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px;text-align:center}
+.stat-num{font-size:26px;font-weight:850;line-height:1}.stat-label{font-size:12px;color:var(--text2);margin-top:5px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}.day-col{min-height:92px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.day-head{padding:6px;text-align:center;font-size:11px;font-weight:800;color:var(--text2);border-bottom:1px solid var(--border)}
+.day-body{padding:5px;display:grid;gap:3px}.ev{font-size:11px;line-height:1.25;padding:4px 5px;border-radius:5px;overflow:hidden}
+.ev-title{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:800}.ev-time{opacity:.75;font-size:10px}
+.ev-lec{background:rgba(124,109,242,.18);color:var(--accent2);border-left:2px solid var(--accent)}
 .ev-blk{background:rgba(52,211,153,.15);color:var(--green);border-left:2px solid var(--green)}
 .ev-other{background:rgba(255,255,255,.05);color:var(--text2);border-left:2px solid var(--border2)}
-.ev-conflict{background:rgba(248,113,113,.2)!important;color:var(--red)!important;border-left:2px solid var(--red)!important}
-
-/* ── TIMETABLE (hour grid) ───────────────────────────────────────────────── */
-.timetable-wrap{overflow-x:auto;margin-top:.75rem}
-.timetable{min-width:700px}
-.tt-header{display:grid;grid-template-columns:50px repeat(7,1fr);gap:2px;margin-bottom:2px}
-.tt-day-label{font-size:11px;font-weight:700;text-align:center;padding:6px 3px;border-radius:var(--r-xs);color:var(--text2);text-transform:uppercase;letter-spacing:.3px}
-.tt-day-label.today-col{background:var(--accent-dim);color:var(--accent2)}
-.tt-body{display:grid;grid-template-columns:50px repeat(7,1fr);gap:2px}
-.tt-hour{font-size:10px;color:var(--text2);text-align:right;padding-right:6px;padding-top:2px;height:36px;line-height:36px;height:36px}
-.tt-cell{position:relative;height:36px;background:var(--surface2);border-radius:2px;border:1px solid var(--border)}
-.tt-cell.today-col{background:rgba(123,104,238,.05)}
-.tt-ev{position:absolute;left:1px;right:1px;border-radius:3px;padding:1px 4px;font-size:9px;font-weight:600;line-height:1.2;overflow:hidden;z-index:2;cursor:default}
-.tt-lec{background:rgba(123,104,238,.35);color:var(--accent2);border:1px solid rgba(123,104,238,.4)}
-.tt-blk{background:rgba(52,211,153,.25);color:var(--green);border:1px solid rgba(52,211,153,.35)}
-.tt-conflict{background:rgba(248,113,113,.35)!important;color:var(--red)!important;border-color:var(--red)!important}
-.free-band{position:absolute;left:1px;right:1px;background:rgba(52,211,153,.05);border-radius:2px}
-
-/* ── LECTURE TABLE ───────────────────────────────────────────────────────── */
-.lec-table{width:100%;border-collapse:collapse;font-size:12px}
-.lec-table th{font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px;padding:0 6px 8px;text-align:left;white-space:nowrap;font-weight:600}
-.lec-table tr.lec-row{border-top:1px solid var(--border)}
-.lec-table tr.lec-row:hover{background:rgba(255,255,255,.02)}
-.lec-table tr.conflict-row{background:rgba(248,113,113,.06)!important}
-.lec-table td{padding:4px 3px;vertical-align:middle}
-.lec-table td input,.lec-table td select{padding:.25rem .45rem;font-size:12px;border-radius:4px;background:transparent;border:1px solid transparent;color:var(--text);width:100%;outline:none;transition:border-color var(--transition)}
-.lec-table td input:hover,.lec-table td select:hover{border-color:var(--border2)}
-.lec-table td input:focus,.lec-table td select:focus{border-color:var(--accent);background:var(--surface2)}
-.conflict-icon{color:var(--red);font-size:12px;cursor:help}
-
-/* ── BLOCK ROWS ──────────────────────────────────────────────────────────── */
-.block-list{display:flex;flex-direction:column;gap:6px}
-.block-row{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-sm);padding:10px 12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;transition:border-color var(--transition);cursor:grab}
-.block-row:active{cursor:grabbing}
-.block-row.dragging{opacity:.4}
-.block-row.drag-over{border-color:var(--accent)}
-.block-row.disabled-block{opacity:.45}
-.block-row.conflict-block{border-color:rgba(248,113,113,.4);background:rgba(248,113,113,.05)}
-.block-color-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;cursor:pointer;border:2px solid rgba(255,255,255,.2)}
-.day-pills{display:flex;gap:3px}
-.day-pill{width:26px;height:26px;border-radius:50%;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;border:1px solid var(--border2);color:var(--text2);background:transparent;cursor:pointer;transition:all var(--transition);user-select:none}
-.day-pill.on{background:var(--accent-dim);color:var(--accent2);border-color:rgba(123,104,238,.4)}
-
-/* ── TOGGLE ──────────────────────────────────────────────────────────────── */
-.toggle{width:36px;height:20px;border-radius:10px;background:var(--surface3);border:none;position:relative;cursor:pointer;transition:background var(--transition);flex-shrink:0}
-.toggle.on{background:var(--green)}
-.toggle::after{content:'';position:absolute;width:14px;height:14px;border-radius:50%;background:#fff;top:3px;left:3px;transition:left var(--transition)}
-.toggle.on::after{left:19px}
-
-/* ── COLOR PICKER ────────────────────────────────────────────────────────── */
-.color-swatch-grid{display:flex;flex-wrap:wrap;gap:6px;margin:.5rem 0}
-.color-swatch{width:24px;height:24px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all var(--transition)}
-.color-swatch:hover,.color-swatch.selected{border-color:#fff;transform:scale(1.15)}
-
-/* ── DRAG HANDLE ─────────────────────────────────────────────────────────── */
-.drag-handle{color:var(--text2);cursor:grab;font-size:14px;padding:0 2px;flex-shrink:0}
-.drag-handle:active{cursor:grabbing}
-
-/* ── ANALYTICS ───────────────────────────────────────────────────────────── */
-.bar-chart{display:flex;gap:4px;align-items:flex-end;height:80px;margin:.75rem 0}
-.bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px}
-.bar{width:100%;border-radius:3px 3px 0 0;background:var(--accent-dim);border:1px solid rgba(123,104,238,.3);transition:height .4s ease;min-height:2px}
-.bar-label{font-size:9px;color:var(--text2);text-align:center}
-.bar-val{font-size:9px;color:var(--text2);font-weight:600}
-
-/* ── SEARCH ──────────────────────────────────────────────────────────────── */
-.search-wrap{position:relative}
-.search-wrap input{padding-left:2rem}
-.search-icon{position:absolute;left:.6rem;top:50%;transform:translateY(-50%);color:var(--text2);font-size:13px;pointer-events:none}
-
-/* ── COUNTDOWN ───────────────────────────────────────────────────────────── */
-.countdown-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px}
-.countdown-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-sm);padding:1rem;text-align:center}
-.countdown-days{font-size:2rem;font-weight:800;line-height:1}
-.countdown-label{font-size:12px;color:var(--text2);margin-top:4px}
-.countdown-name{font-size:13px;font-weight:600;margin-bottom:.25rem}
-.countdown-soon{color:var(--red)}
-.countdown-ok{color:var(--green)}
-.countdown-amber{color:var(--amber)}
-
-/* ── MOBILE ──────────────────────────────────────────────────────────────── */
-@media(max-width:640px){
-  #nav{padding:.6rem 1rem}
-  .nav-tabs{display:none}
-  #app{padding:1rem .75rem 6rem}
-  body{padding-bottom:60px}
-  .week-grid{grid-template-columns:repeat(4,1fr)}
-  .stats-row{grid-template-columns:1fr 1fr}
-  .timetable{min-width:560px}
+.ev-conflict{background:rgba(251,113,133,.18);color:var(--red);border-left:2px solid var(--red)}
+.table-wrap{overflow:auto}.lec-table{width:100%;border-collapse:collapse;font-size:13px}.lec-table th,.lec-table td{padding:9px;border-bottom:1px solid var(--border);text-align:left}.lec-table th{color:var(--text2);font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+.block-list{display:grid;gap:8px}.block-row{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:11px;border:1px solid var(--border);border-radius:8px;background:var(--surface2)}
+.day-pill{border:1px solid var(--border2);background:transparent;color:var(--text2);border-radius:99px;padding:3px 7px;font-size:11px}.day-pill.on{background:var(--accent-dim);color:var(--accent2)}
+.toggle{width:40px;height:23px;border-radius:99px;border:1px solid var(--border2);background:var(--surface3);position:relative}.toggle:before{content:"";position:absolute;width:17px;height:17px;border-radius:50%;background:var(--text2);left:3px;top:2px;transition:var(--transition)}.toggle.on{background:var(--green-dim)}.toggle.on:before{left:18px;background:var(--green)}
+.review-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:14px;margin-bottom:14px}.review-card{padding:18px}
+.review-health{display:flex;align-items:center;gap:18px;flex-wrap:wrap}.health-ring{width:112px;height:112px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--green) calc(var(--pct,100)*1%),var(--surface3) 0)}
+.health-ring span{width:78px;height:78px;border-radius:50%;display:grid;place-items:center;background:var(--surface);font-weight:850;font-size:21px}
+.health-bars{display:grid;grid-template-columns:repeat(10,1fr);gap:4px;max-width:280px}.health-bars i{height:12px;border-radius:4px;background:var(--surface3)}.health-bars i.on{background:linear-gradient(90deg,var(--accent),var(--green))}
+.issue-pill{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:13px;text-align:center}.issue-pill strong{font-size:24px;display:block}
+.review-section{margin-top:16px}.review-section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}.review-list{display:grid;gap:10px}
+.issue-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;box-shadow:0 10px 34px rgba(0,0,0,.18);animation:in .18s ease}.issue-card.resolving{opacity:.55;pointer-events:none}
+.issue-top{display:flex;gap:12px;align-items:flex-start}.issue-icon{width:36px;height:36px;border-radius:8px;background:var(--red-dim);color:var(--red);display:grid;place-items:center;font-weight:900;flex-shrink:0}
+.issue-body{flex:1;min-width:0}.issue-title{font-weight:850}.issue-meta{font-size:12px;color:var(--text2)}
+.event-pair{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.event-mini{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px;min-width:0}.event-mini strong{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.event-mini span{display:block;font-size:12px;color:var(--text2);margin-top:2px}
+.issue-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:11px}.review-empty{border:1px dashed var(--border2);border-radius:10px;padding:18px;text-align:center;color:var(--text2)}
+.suggestion-item{display:flex;gap:10px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;font-size:13px}
+.progress{height:5px;background:var(--surface3);border-radius:99px;overflow:hidden}.progress-bar{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--green));transition:width .25s}
+.log-box{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px;max-height:180px;overflow:auto;font-family:ui-monospace,Consolas,monospace;font-size:12px;color:var(--text2)}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.58);display:grid;place-items:center;padding:16px;z-index:800;backdrop-filter:blur(8px)}.modal{width:min(560px,100%);padding:18px}.modal-lg{width:min(760px,100%)}.modal-title{font-weight:850;margin-bottom:10px}.modal-footer{display:flex;justify-content:flex-end;gap:8px;margin-top:16px;padding-top:14px;border-top:1px solid var(--border)}
+#mobile-nav{display:none}
+@media(max-width:760px){
+  #nav{align-items:flex-start}.nav-tabs{display:none}.grid-2,.grid-3,.review-grid,.event-pair{grid-template-columns:1fr}.week-grid{grid-template-columns:1fr}.nav-badge{display:none}
+  #mobile-nav{position:fixed;bottom:0;left:0;right:0;display:flex;gap:2px;background:var(--surface);border-top:1px solid var(--border);padding:6px;z-index:500}
+  .mob-tab{flex:1;border:0;background:transparent;color:var(--text2);font-size:11px;padding:8px 4px;border-radius:8px}.mob-tab.active{background:var(--accent-dim);color:var(--accent2)}
 }
-
-/* ── SETUP GUIDE ─────────────────────────────────────────────────────────── */
-.guide-steps{list-style:none;display:flex;flex-direction:column;gap:10px}
-.guide-steps li{display:flex;gap:10px;font-size:13px;color:var(--text2)}
-.gn{min-width:20px;height:20px;border-radius:50%;background:var(--accent-dim);color:var(--accent2);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;margin-top:2px}
-
-/* ── DIFF PREVIEW ────────────────────────────────────────────────────────── */
-.diff-new{background:rgba(52,211,153,.1);border-left:3px solid var(--green);padding:4px 8px;border-radius:0 4px 4px 0;margin-bottom:3px;font-size:12px}
-.diff-del{background:rgba(248,113,113,.1);border-left:3px solid var(--red);padding:4px 8px;border-radius:0 4px 4px 0;margin-bottom:3px;font-size:12px;text-decoration:line-through;opacity:.7}
-
-/* ── KEYBOARD SHORTCUTS MODAL ────────────────────────────────────────────── */
-.shortcut-grid{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;font-size:13px;align-items:center}
-.shortcut-key{background:var(--surface2);border:1px solid var(--border2);border-radius:4px;padding:2px 7px;font-size:12px;font-family:monospace;color:var(--text);white-space:nowrap;justify-self:start}
-
-/* ── SETTINGS ────────────────────────────────────────────────────────────── */
-.settings-row{display:flex;align-items:center;justify-content:space-between;padding:.85rem 0;border-bottom:1px solid var(--border)}
-.settings-row:last-child{border-bottom:none}
-.settings-label{font-size:13px;font-weight:500}
-.settings-desc{font-size:12px;color:var(--text2);margin-top:2px}
-
-/* MOBILE BOTTOM NAV */
-@media(max-width:640px){
-  #mobile-nav{display:flex}
-}
-#mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);z-index:300;padding:.4rem .5rem;gap:2px}
-.mob-tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10px;font-weight:500;color:var(--text2);background:none;border:none;padding:.4rem .2rem;border-radius:var(--r-xs);transition:all var(--transition)}
-.mob-tab.active{color:var(--accent2);background:var(--accent-dim)}
-.mob-tab-icon{font-size:16px;line-height:1}
 </style>
 </head>
 <body>
-
-<!-- TOAST STACK -->
 <div id="toast-stack"></div>
 
-<!-- ── NAV ───────────────────────────────────────────────────────────────── -->
 <div id="nav">
   <span class="nav-logo">StudySync</span>
   <div class="nav-tabs">
-    <button class="nav-tab active" onclick="showPage('dashboard')" id="tab-dashboard">Dashboard</button>
-    <button class="nav-tab" onclick="showPage('timetable')" id="tab-timetable">Timetable</button>
-    <button class="nav-tab" onclick="showPage('calendar')" id="tab-calendar">Calendar</button>
-    <button class="nav-tab" onclick="showPage('analytics')" id="tab-analytics">Analytics</button>
-    <button class="nav-tab" onclick="showPage('settings')" id="tab-settings">Settings</button>
+    <button class="nav-tab active" id="tab-dashboard" onclick="showPage('dashboard')">Dashboard</button>
+    <button class="nav-tab" id="tab-timetable" onclick="showPage('timetable')">Timetable</button>
+    <button class="nav-tab" id="tab-calendar" onclick="showPage('calendar')">Calendar</button>
+    <button class="nav-tab" id="tab-review" onclick="showPage('review')">Review<span id="review-nav-badge" class="badge hidden">0</span></button>
+    <button class="nav-tab" id="tab-analytics" onclick="showPage('analytics')">Analytics</button>
+    <button class="nav-tab" id="tab-settings" onclick="showPage('settings')">Settings</button>
   </div>
   <div class="nav-actions">
     <span id="nav-conn-badge" class="nav-badge">Not connected</span>
-    <button id="theme-btn" onclick="toggleTheme()" title="Toggle theme">🌙</button>
-    <button class="btn btn-outline btn-sm" onclick="showModal('shortcuts-modal')">⌨</button>
+    <button class="btn btn-outline btn-icon" onclick="toggleTheme()" id="theme-btn" title="Toggle theme">D</button>
   </div>
 </div>
 
 <div id="app">
-
-<!-- ══════════════════════════════════════════════════════════════════════════
-     PAGE: DASHBOARD
-══════════════════════════════════════════════════════════════════════════ -->
-<div class="page active" id="page-dashboard">
-
-  <!-- Connect card -->
-  <div class="card" id="connect-card">
-    <div class="card-title"><span class="ct-icon">🔑</span> Connect Google Calendar</div>
-    <div id="dash-auth-area">
-      <div class="alert alert-warn" style="margin-bottom:1rem">
-        ⚠️ Needs a Google Cloud Client ID.
-        <button onclick="showModal('setup-modal')" style="background:none;border:none;color:var(--amber);text-decoration:underline;cursor:pointer;font-size:13px;padding:0;margin-left:4px">Setup guide</button>
+  <div class="page active" id="page-dashboard">
+    <div class="card" id="connect-card">
+      <div class="card-title"><span class="ct-icon">G</span> Connect Google Calendar</div>
+      <div id="dash-auth-area">
+        <div class="alert alert-warn" style="margin-bottom:12px">Paste your Google OAuth Client ID. StudySync talks directly to Google Calendar from this browser.</div>
+        
+        <div class="row">
+          <input class="input" id="gcal-cid" placeholder="xxxxxx.apps.googleusercontent.com" style="flex:1;min-width:240px">
+          <button class="btn btn-primary" onclick="initGoogle()">Sign in with Google</button>
+          <button class="btn btn-outline" onclick="clearSavedClientId()">Clear saved ID</button>
+        </div>
       </div>
+      <div id="dash-connected" class="hidden">
+        <div class="row">
+          <span class="chip chip-green"><span class="dot"></span> Connected</span>
+          <span id="dash-email" style="font-size:13px;color:var(--text2)">Google connected</span>
+          <span class="chip chip-accent" id="dash-cal-name">StudySync calendar</span>
+          <div class="spacer"></div>
+          <button class="btn btn-ghost btn-sm" onclick="signOut()">Sign out</button>
+        </div>
+        <div class="row" style="margin-top:12px">
+          <button class="btn btn-outline btn-sm" onclick="doTwoWaySync()"><span id="sync2w-spin" class="hidden">...</span> Two-way sync</button>
+          <button class="btn btn-outline btn-sm" onclick="showPage('calendar')">Open Calendar</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="stats-row" style="margin-top:14px">
+      <div class="stat-box"><div class="stat-num" id="ds-lec">0</div><div class="stat-label">Lectures/week</div></div>
+      <div class="stat-box"><div class="stat-num" id="ds-lhrs">0h</div><div class="stat-label">Lecture hrs/week</div></div>
+      <div class="stat-box"><div class="stat-num" id="ds-blk">0</div><div class="stat-label">Study blocks/day</div></div>
+      <div class="stat-box"><div class="stat-num" id="ds-shrs">0h</div><div class="stat-label">Study hrs/day</div></div>
+      <div class="stat-box"><div class="stat-num" id="ds-conf">0</div><div class="stat-label">Conflicts</div></div>
+    </div>
+
+    <div class="card" style="margin-top:14px">
       <div class="row">
-        <input class="input" id="gcal-cid" placeholder="xxxxxx.apps.googleusercontent.com" style="flex:1">
-        <button class="btn btn-primary" onclick="initGoogle()">Sign in with Google</button>
-      </div>
-      <p style="font-size:12px;color:var(--text2);margin-top:8px">Client ID saved locally. Events go directly to Google's API — no intermediary server.</p>
-    </div>
-    <div id="dash-connected" class="hidden">
-      <div class="row" style="flex-wrap:wrap;gap:10px">
-        <span class="chip chip-green"><span class="dot"></span> Connected</span>
-        <span id="dash-email" style="font-size:13px;color:var(--text2)"></span>
-        <span class="chip chip-accent" id="dash-cal-name"></span>
+        <div><div class="card-title" style="margin-bottom:2px"><span class="ct-icon">+</span> Calendar Status</div><div id="dash-calendar-status" style="font-size:13px;color:var(--text2)">Healthy</div></div>
         <div class="spacer"></div>
-        <button class="btn btn-ghost btn-sm" onclick="signOut()">Sign out</button>
+        <button class="btn btn-outline btn-sm" onclick="showPage('review')">Open Review</button>
       </div>
-      <div class="row" style="margin-top:.75rem;gap:8px;flex-wrap:wrap">
-        <button class="btn btn-outline btn-sm" onclick="doTwoWaySync()">
-          <span id="sync2w-spin" class="spin hidden"></span> ⇄ Two-way sync
-        </button>
-        <button class="btn btn-outline btn-sm" onclick="showPage('calendar')">Open Calendar →</button>
-      </div>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <div class="card-title"><span class="ct-icon">W</span> This week <div class="spacer"></div><button class="btn btn-ghost btn-sm" onclick="showPage('timetable')">Full view</button></div>
+      <div class="week-grid" id="dash-week-grid"></div>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <div class="card-title"><span class="ct-icon">E</span> Exams & countdowns <div class="spacer"></div><button class="btn btn-outline btn-sm" onclick="addExam()">Add</button></div>
+      <div id="countdown-grid" class="grid-3"></div>
+      <div id="no-exams" class="review-empty hidden">No upcoming exams.</div>
     </div>
   </div>
 
-  <!-- Stats row -->
-  <div class="stats-row" id="dash-stats" style="margin-top:1rem">
-    <div class="stat-box"><div class="stat-num" id="ds-lec" style="color:var(--accent2)">—</div><div class="stat-label">Lectures/week</div></div>
-    <div class="stat-box"><div class="stat-num" id="ds-lhrs" style="color:var(--accent2)">—</div><div class="stat-label">Lecture hrs/week</div></div>
-    <div class="stat-box"><div class="stat-num" id="ds-blk" style="color:var(--green)">—</div><div class="stat-label">Study blocks/day</div></div>
-    <div class="stat-box"><div class="stat-num" id="ds-shrs" style="color:var(--green)">—</div><div class="stat-label">Study hrs/day</div></div>
-    <div class="stat-box"><div class="stat-num" id="ds-conf" style="color:var(--red)">—</div><div class="stat-label">Conflicts</div></div>
-  </div>
-
-  <!-- Quick week preview -->
-  <div class="card" style="margin-top:1rem">
-    <div class="card-title"><span class="ct-icon">📅</span> This week
-      <div class="spacer"></div>
-      <button class="btn btn-ghost btn-sm" onclick="showPage('timetable')">Full view →</button>
-    </div>
-    <div class="week-grid" id="dash-week-grid"></div>
-    <div class="row" style="margin-top:.5rem;gap:16px;font-size:11px;color:var(--text2)">
-      <span><span class="dot" style="background:rgba(123,104,238,.7)"></span> Lecture</span>
-      <span><span class="dot" style="background:rgba(52,211,153,.7)"></span> Study block</span>
-      <span><span class="dot" style="background:rgba(248,113,113,.7)"></span> Conflict</span>
-    </div>
-  </div>
-
-  <!-- Upcoming exams / countdowns -->
-  <div class="card" style="margin-top:1rem">
-    <div class="card-title"><span class="ct-icon">⏳</span> Exams & countdowns
-      <div class="spacer"></div>
-      <button class="btn btn-ghost btn-sm" onclick="addExam()">+ Add</button>
-    </div>
-    <div id="countdown-grid" class="countdown-grid"></div>
-    <div id="no-exams" class="hidden" style="font-size:13px;color:var(--text2);padding:.5rem 0">No upcoming exams. Add one above.</div>
-  </div>
-
-  <!-- Conflict summary -->
-  <div class="card hidden" id="conflict-card" style="margin-top:1rem">
-    <div class="card-title"><span class="ct-icon">⚠️</span> Conflicts detected</div>
-    <div id="conflict-list"></div>
-  </div>
-
-</div>
-
-<!-- ══════════════════════════════════════════════════════════════════════════
-     PAGE: TIMETABLE
-══════════════════════════════════════════════════════════════════════════ -->
-<div class="page" id="page-timetable">
-
-  <!-- LECTURES -->
-  <div class="card">
-    <div class="card-title"><span class="ct-icon">📚</span> Lectures
-      <div class="spacer"></div>
-      <div class="row" style="gap:6px">
-        <div class="search-wrap">
-          <span class="search-icon">🔍</span>
-          <input class="input input-sm" id="lec-search" placeholder="Search…" oninput="filterLectures()" style="width:140px;padding-left:1.8rem">
-        </div>
-        <button class="btn btn-ghost btn-sm" onclick="bulkDeleteLectures()" id="bulk-del-btn" style="color:var(--red)" disabled>Delete selected</button>
-        <button class="btn btn-outline btn-sm" onclick="addLecture()">+ Add</button>
-        <button class="btn btn-ghost btn-sm" onclick="loadSample()">Sample</button>
-        <button class="btn btn-ghost btn-sm" onclick="removeDupLectures()">Remove dupes</button>
+  <div class="page" id="page-timetable">
+    <div class="card">
+      <div class="card-title"><span class="ct-icon">L</span> Lectures <div class="spacer"></div><button class="btn btn-outline btn-sm" onclick="addLecture()">Add</button><button class="btn btn-ghost btn-sm" onclick="loadSample()">Sample</button><button class="btn btn-ghost btn-sm" onclick="removeDupLectures()">Remove dupes</button></div>
+      <div class="table-wrap">
+        <table class="lec-table">
+          <thead><tr><th>Day</th><th>Subject</th><th>Start</th><th>End</th><th>Location</th><th></th></tr></thead>
+          <tbody id="lec-body"></tbody>
+        </table>
       </div>
+      <div class="row" style="margin-top:12px;color:var(--text2);font-size:12px"><span id="lec-count-label">0 lectures</span><div class="spacer"></div><button class="btn btn-outline btn-sm" onclick="exportJSON()">Export JSON</button><label class="btn btn-outline btn-sm">Import JSON<input type="file" accept=".json" onchange="importJSON(event)" style="display:none"></label></div>
     </div>
 
-    <div style="overflow-x:auto">
-      <table class="lec-table" id="lec-table">
-        <thead><tr>
-          <th style="width:28px"><input type="checkbox" id="lec-sel-all" onchange="toggleSelectAll(this)"></th>
-          <th>Day</th><th style="min-width:130px">Subject</th>
-          <th>Start</th><th>End</th>
-          <th style="min-width:90px">Location</th>
-          <th style="width:40px"></th>
-        </tr></thead>
-        <tbody id="lec-body"></tbody>
-      </table>
+    <div class="card" style="margin-top:14px">
+      <div class="card-title"><span class="ct-icon">B</span> Study blocks <div class="spacer"></div><button class="btn btn-outline btn-sm" onclick="addBlock()">Add block</button></div>
+      <div id="block-list" class="block-list"></div>
+      <div id="block-conflicts" class="alert alert-warn hidden" style="margin-top:12px"></div>
     </div>
 
-    <div class="row" style="margin-top:.75rem;font-size:12px;color:var(--text2)">
-      <span id="lec-count-label"></span>
-      <div class="spacer"></div>
-      <button class="btn btn-ghost btn-sm" onclick="exportJSON()">⬇ Export JSON</button>
-      <label class="btn btn-ghost btn-sm" style="cursor:pointer">⬆ Import JSON<input type="file" accept=".json" onchange="importJSON(event)" style="display:none"></label>
+    <div class="card" style="margin-top:14px">
+      <div class="card-title"><span class="ct-icon">H</span> Hour-by-hour view</div>
+      <div id="hour-grid" class="week-grid"></div>
+      <div id="free-time-label" style="font-size:12px;color:var(--text2);margin-top:10px"></div>
     </div>
   </div>
 
-  <!-- STUDY BLOCKS -->
-  <div class="card" style="margin-top:1rem">
-    <div class="card-title"><span class="ct-icon">🎯</span> Study blocks
-      <div class="spacer"></div>
-      <button class="btn btn-outline btn-sm" onclick="addBlock()">+ Add block</button>
-    </div>
-    <div class="alert alert-info" style="margin-bottom:.75rem;font-size:12px">
-      Drag to reorder · Click day pills to toggle · Toggle switch to enable/disable · Click colour dot to change colour
-    </div>
-    <div class="block-list" id="block-list"></div>
-
-    <div id="block-conflicts" class="hidden alert alert-warn" style="margin-top:.75rem"></div>
-  </div>
-
-  <!-- HOUR TIMETABLE -->
-  <div class="card" style="margin-top:1rem">
-    <div class="card-title"><span class="ct-icon">🕐</span> Hour-by-hour view
-      <div class="spacer"></div>
-      <div class="row" style="gap:6px">
-        <label class="lbl" style="margin:0">From</label>
-        <select class="input input-sm" id="tt-from" onchange="renderHourGrid()" style="width:70px">
-          <option value="5">5 AM</option><option value="6">6 AM</option>
-          <option value="7" selected>7 AM</option><option value="8">8 AM</option>
-        </select>
-        <label class="lbl" style="margin:0">To</label>
-        <select class="input input-sm" id="tt-to" onchange="renderHourGrid()" style="width:70px">
-          <option value="21">9 PM</option><option value="22">10 PM</option>
-          <option value="23" selected>11 PM</option><option value="24">12 AM</option>
-        </select>
-      </div>
-    </div>
-    <div style="font-size:12px;color:var(--text2);margin-bottom:.5rem">
-      <span style="display:inline-flex;align-items:center;gap:5px;margin-right:12px"><span style="width:10px;height:10px;border-radius:2px;background:rgba(123,104,238,.35);display:inline-block"></span>Lecture</span>
-      <span style="display:inline-flex;align-items:center;gap:5px;margin-right:12px"><span style="width:10px;height:10px;border-radius:2px;background:rgba(52,211,153,.25);display:inline-block"></span>Study block</span>
-      <span style="display:inline-flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:2px;background:rgba(248,113,113,.35);display:inline-block"></span>Conflict</span>
-    </div>
-    <div class="timetable-wrap"><div class="timetable" id="hour-grid"></div></div>
-    <div id="free-time-label" style="font-size:12px;color:var(--text2);margin-top:.5rem"></div>
-  </div>
-
-</div>
-
-<!-- ══════════════════════════════════════════════════════════════════════════
-     PAGE: CALENDAR
-══════════════════════════════════════════════════════════════════════════ -->
-<div class="page" id="page-calendar">
-
-  <!-- SYNC PANEL -->
-  <div class="card">
-    <div class="card-title"><span class="ct-icon">🔄</span> Sync to Google Calendar</div>
-
-    <div id="cal-no-auth" class="alert alert-info">Connect Google Calendar on the Dashboard first.</div>
-
-    <div id="cal-auth-panel" class="hidden">
-
-      <div class="row" style="margin-bottom:1rem;gap:10px;flex-wrap:wrap">
-        <div class="col" style="gap:4px">
-          <label class="lbl">Start</label>
-          <input type="date" class="input" id="sync-start" style="width:auto">
-        </div>
-        <div class="col" style="gap:4px">
-          <label class="lbl">End</label>
-          <input type="date" class="input" id="sync-end" style="width:auto">
-        </div>
-        <div class="row" style="align-self:flex-end;gap:6px">
-          <button class="btn btn-outline btn-sm" onclick="setWeeks(4)">4 wks</button>
-          <button class="btn btn-outline btn-sm" onclick="setWeeks(8)">8 wks</button>
-          <button class="btn btn-outline btn-sm" onclick="setWeeks(12)">12 wks</button>
-        </div>
-      </div>
-
-      <!-- Target calendar -->
-      <div class="row" style="margin-bottom:1rem;gap:8px">
-        <label class="lbl" style="margin:0">Target calendar:</label>
-        <label style="font-size:13px;display:flex;align-items:center;gap:6px;cursor:pointer">
-          <input type="radio" name="cal-target" value="studysync" checked onchange="updateCalTarget()"> StudySync (dedicated)
-        </label>
-        <label style="font-size:13px;display:flex;align-items:center;gap:6px;cursor:pointer">
-          <input type="radio" name="cal-target" value="primary" onchange="updateCalTarget()"> Primary calendar
-        </label>
-      </div>
-
-      <!-- Block selector -->
-      <div style="margin-bottom:1rem">
-        <label class="lbl">Study blocks to sync:</label>
-        <div id="block-selector" class="row" style="flex-wrap:wrap;gap:6px;margin-top:4px"></div>
-      </div>
-
-      <!-- Actions row -->
-      <div class="row" style="gap:8px;flex-wrap:wrap">
-        <button class="btn btn-outline btn-sm" onclick="previewSync()">Preview changes</button>
-        <button class="btn btn-primary" id="sync-btn" onclick="runSync()" disabled>
-          <span id="sync-spin" class="spin hidden"></span> Sync to calendar
-        </button>
-        <button class="btn btn-red btn-sm" onclick="deleteAllStudySync()">Delete all StudySync events</button>
-      </div>
-
-      <div id="sync-status-bar" style="font-size:12px;color:var(--text2);margin-top:8px;display:none"></div>
-
-      <div class="progress" style="margin-top:.75rem;display:none" id="sync-progress-wrap">
-        <div class="progress-bar" id="sync-progress-bar" style="width:0%"></div>
-      </div>
-      <div class="log-box hidden" id="sync-log" style="margin-top:.5rem"></div>
-
-      <div class="hidden" id="sync-result" style="margin-top:1rem">
-        <div class="alert alert-success" id="sync-result-msg"></div>
-        <div class="stats-row" style="margin-top:.75rem">
-          <div class="stat-box"><div class="stat-num" id="sr-lec" style="color:var(--accent2)">0</div><div class="stat-label">Lectures added</div></div>
-          <div class="stat-box"><div class="stat-num" id="sr-blk" style="color:var(--green)">0</div><div class="stat-label">Blocks added</div></div>
-          <div class="stat-box"><div class="stat-num" id="sr-skip" style="color:var(--amber)">0</div><div class="stat-label">Skipped</div></div>
-          <div class="stat-box"><div class="stat-num" id="sr-days" style="color:var(--text2)">0</div><div class="stat-label">Days</div></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- RETRIEVE PANEL -->
-  <div class="card" style="margin-top:1rem">
-    <div class="card-title"><span class="ct-icon">📥</span> Current calendar</div>
-    <div id="ret-no-auth" class="alert alert-info">Connect Google Calendar on the Dashboard first.</div>
-    <div id="ret-auth-panel" class="hidden">
-      <div class="row" style="margin-bottom:1rem;gap:8px;flex-wrap:wrap">
-        <div class="col" style="gap:4px"><label class="lbl">From</label><input type="date" class="input" id="ret-from" style="width:auto"></div>
-        <div class="col" style="gap:4px"><label class="lbl">To</label><input type="date" class="input" id="ret-to" style="width:auto"></div>
-        <div class="row" style="align-self:flex-end;gap:6px">
-          <button class="btn btn-outline btn-sm" onclick="setRetRange(1)">This week</button>
-          <button class="btn btn-outline btn-sm" onclick="setRetRange(4)">4 weeks</button>
-        </div>
-        <div style="align-self:flex-end">
-          <button class="btn btn-primary btn-sm" id="fetch-btn" onclick="fetchCalEvents()">
-            <span id="fetch-spin" class="spin hidden"></span> Fetch events
-          </button>
-        </div>
-      </div>
-
-      <div id="ret-results" class="hidden">
-        <div class="row" style="gap:8px;flex-wrap:wrap;margin-bottom:1rem" id="ret-chips"></div>
-
-        <div class="row" style="gap:6px;margin-bottom:.75rem;flex-wrap:wrap">
-          <button class="tab-btn active" id="rtab-week" onclick="retTab('week')">Week</button>
-          <button class="tab-btn" id="rtab-lec" onclick="retTab('lec')">Lectures</button>
-          <button class="tab-btn" id="rtab-blk" onclick="retTab('blk')">Study blocks</button>
-          <button class="tab-btn" id="rtab-all" onclick="retTab('all')">All</button>
+  <div class="page" id="page-calendar">
+    <div class="card">
+      <div class="card-title"><span class="ct-icon">S</span> Sync to Google Calendar</div>
+      <div id="cal-no-auth" class="alert alert-info">Connect Google Calendar on the Dashboard first.</div>
+      <div id="cal-auth-panel" class="hidden">
+        <div class="row" style="margin-bottom:14px">
+          <div><label class="lbl">Start</label><input type="date" class="input" id="sync-start"></div>
+          <div><label class="lbl">End</label><input type="date" class="input" id="sync-end"></div>
+          <button class="btn btn-outline btn-sm" onclick="setWeeks(4)" style="align-self:end">4 wks</button>
+          <button class="btn btn-outline btn-sm" onclick="setWeeks(8)" style="align-self:end">8 wks</button>
+          <button class="btn btn-outline btn-sm" onclick="setWeeks(12)" style="align-self:end">12 wks</button>
         </div>
 
-        <div id="ret-week-view">
-          <div class="row" style="margin-bottom:4px">
-            <button class="btn btn-ghost btn-sm" onclick="retWeekNav(-1)">← Prev</button>
-            <span id="ret-week-label" style="font-size:12px;color:var(--text2);flex:1;text-align:center"></span>
-            <button class="btn btn-ghost btn-sm" onclick="retWeekNav(1)">Next →</button>
+        <div class="row" style="margin-bottom:14px">
+          <label class="lbl" style="margin:0">Target calendar</label>
+          <label class="chip"><input type="radio" name="cal-target" value="studysync" checked onchange="updateCalTarget()"> StudySync</label>
+          <label class="chip"><input type="radio" name="cal-target" value="primary" onchange="updateCalTarget()"> Primary</label>
+        </div>
+
+        <div style="margin-bottom:14px">
+          <label class="lbl">Study blocks to sync</label>
+          <div id="block-selector" class="row"></div>
+        </div>
+
+        <div class="row">
+          <button class="btn btn-outline btn-sm" onclick="previewSync()">Preview changes</button>
+          <button class="btn btn-primary" id="sync-btn" onclick="runSync()" disabled><span id="sync-spin" class="hidden">...</span> Sync to calendar</button>
+          <button class="btn btn-red btn-sm" onclick="deleteAllStudySync()">Delete all StudySync events</button>
+        </div>
+
+        <div id="sync-status-bar" style="font-size:12px;color:var(--text2);margin-top:9px;display:none"></div>
+        <div class="progress" id="sync-progress-wrap" style="display:none;margin-top:12px"><div class="progress-bar" id="sync-progress-bar"></div></div>
+        <div class="log-box hidden" id="sync-log" style="margin-top:8px"></div>
+        <div class="hidden" id="sync-result" style="margin-top:14px">
+          <div class="alert alert-success" id="sync-result-msg"></div>
+          <div class="stats-row" style="margin-top:10px">
+            <div class="stat-box"><div class="stat-num" id="sr-lec">0</div><div class="stat-label">Lectures added</div></div>
+            <div class="stat-box"><div class="stat-num" id="sr-blk">0</div><div class="stat-label">Blocks added</div></div>
+            <div class="stat-box"><div class="stat-num" id="sr-skip">0</div><div class="stat-label">Skipped</div></div>
+            <div class="stat-box"><div class="stat-num" id="sr-days">0</div><div class="stat-label">Days</div></div>
           </div>
-          <div class="week-grid" id="ret-week-grid"></div>
         </div>
-        <div class="hidden" id="ret-lec-view"><div id="ret-lec-list"></div></div>
-        <div class="hidden" id="ret-blk-view"><div id="ret-blk-list"></div></div>
-        <div class="hidden" id="ret-all-view"><div id="ret-all-list"></div></div>
+      </div>
+    </div>
 
-        <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border)">
-          <div class="row" style="gap:8px;flex-wrap:wrap">
+    <div class="card" style="margin-top:14px">
+      <div class="card-title"><span class="ct-icon">C</span> Current calendar</div>
+      <div id="ret-no-auth" class="alert alert-info">Connect Google Calendar on the Dashboard first.</div>
+      <div id="ret-auth-panel" class="hidden">
+        <div class="row" style="margin-bottom:14px">
+          <div><label class="lbl">From</label><input type="date" class="input" id="ret-from"></div>
+          <div><label class="lbl">To</label><input type="date" class="input" id="ret-to"></div>
+          <button class="btn btn-outline btn-sm" onclick="setRetRange(1)" style="align-self:end">This week</button>
+          <button class="btn btn-outline btn-sm" onclick="setRetRange(4)" style="align-self:end">4 weeks</button>
+          <button class="btn btn-primary btn-sm" id="fetch-btn" onclick="fetchCalEvents()" style="align-self:end"><span id="fetch-spin" class="hidden">...</span> Fetch events</button>
+        </div>
+
+        <div id="ret-results" class="hidden">
+          <div class="row" id="ret-chips" style="margin-bottom:12px"></div>
+          <div class="row" style="margin-bottom:12px">
+            <button class="btn btn-outline btn-sm" onclick="retTab('week')" id="rtab-week">Week</button>
+            <button class="btn btn-outline btn-sm" onclick="retTab('lec')" id="rtab-lec">Lectures</button>
+            <button class="btn btn-outline btn-sm" onclick="retTab('blk')" id="rtab-blk">Study blocks</button>
+            <button class="btn btn-outline btn-sm" onclick="retTab('all')" id="rtab-all">All</button>
+          </div>
+
+          <div id="ret-week-view">
+            <div class="row" style="margin-bottom:8px">
+              <button class="btn btn-ghost btn-sm" onclick="retWeekNav(-1)">Prev</button>
+              <span id="ret-week-label" style="font-size:12px;color:var(--text2);flex:1;text-align:center"></span>
+              <button class="btn btn-ghost btn-sm" onclick="retWeekNav(1)">Next</button>
+            </div>
+            <div class="week-grid" id="ret-week-grid"></div>
+          </div>
+          <div class="hidden" id="ret-lec-view"><div id="ret-lec-list"></div></div>
+          <div class="hidden" id="ret-blk-view"><div id="ret-blk-list"></div></div>
+          <div class="hidden" id="ret-all-view"><div id="ret-all-list"></div></div>
+
+          <div class="row" style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
             <button class="btn btn-outline btn-sm" id="load-lec-btn" onclick="loadFromCalendar()" disabled>Load lectures into editor</button>
-            <button class="btn btn-outline btn-sm" onclick="checkDuplicates()">🔍 Check duplicates</button>
+            <button class="btn btn-outline btn-sm" onclick="checkDuplicates()">Check duplicates</button>
             <button class="btn btn-red btn-sm" onclick="deleteFromCal('lec')">Delete lectures</button>
             <button class="btn btn-red btn-sm" onclick="deleteFromCal('blk')">Delete study blocks</button>
             <button class="btn btn-red btn-sm" onclick="deleteFromCal('all')">Delete all fetched</button>
@@ -591,135 +291,82 @@ select.input option{background:var(--surface2)}
     </div>
   </div>
 
-</div>
+  <div class="page" id="page-review">
+    <div class="review-grid">
+      <div class="review-card">
+        <div class="card-title"><span class="ct-icon">H</span> Calendar Health</div>
+        <div class="review-health">
+          <div class="health-ring" id="review-health-ring" style="--pct:100"><span id="review-health-pct">100%</span></div>
+          <div style="flex:1;min-width:220px">
+            <div class="health-bars" id="review-health-bars"></div>
+            <p id="review-health-copy" style="font-size:13px;color:var(--text2);margin-top:12px">No unresolved issues.</p>
+          </div>
+        </div>
+      </div>
 
-<!-- ══════════════════════════════════════════════════════════════════════════
-     PAGE: ANALYTICS
-══════════════════════════════════════════════════════════════════════════ -->
-<div class="page" id="page-analytics">
+      <div class="review-card">
+        <div class="card-title"><span class="ct-icon">I</span> Issues summary</div>
+        <div class="grid-3">
+          <div class="issue-pill"><strong id="review-conflict-count">0</strong><span class="stat-label">Conflicts</span></div>
+          <div class="issue-pill"><strong id="review-duplicate-count">0</strong><span class="stat-label">Duplicates</span></div>
+          <div class="issue-pill"><strong id="review-suggestion-count">0</strong><span class="stat-label">Suggestions</span></div>
+        </div>
+        <div class="row" style="justify-content:flex-end;margin-top:14px">
+          <button class="btn btn-primary" id="auto-resolve-btn" onclick="autoResolveReview()">Auto Resolve</button>
+        </div>
+      </div>
+    </div>
 
-  <div class="stats-row">
-    <div class="stat-box"><div class="stat-num" id="an-total-lec-hrs" style="color:var(--accent2)">—</div><div class="stat-label">Lecture hrs/week</div></div>
-    <div class="stat-box"><div class="stat-num" id="an-total-study-hrs" style="color:var(--green)">—</div><div class="stat-label">Study hrs/day (avg)</div></div>
-    <div class="stat-box"><div class="stat-num" id="an-total-events" style="color:var(--amber)">—</div><div class="stat-label">Events/week</div></div>
-    <div class="stat-box"><div class="stat-num" id="an-free-hrs" style="color:var(--blue)">—</div><div class="stat-label">Free hrs/day (avg)</div></div>
-  </div>
+    <div class="review-section">
+      <div class="review-section-head"><h3>Conflicts</h3><span class="chip chip-red" id="review-conflict-chip">0 open</span></div>
+      <div class="review-list" id="review-conflicts-list"></div>
+    </div>
 
-  <div class="card" style="margin-top:1rem">
-    <div class="card-title"><span class="ct-icon">📊</span> Daily workload</div>
-    <div class="bar-chart" id="daily-bar-chart"></div>
-    <div class="row" style="font-size:11px;color:var(--text2);gap:12px">
-      <span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--accent-dim);margin-right:3px"></span>Lectures</span>
-      <span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--green-dim);margin-right:3px"></span>Study blocks</span>
+    <div class="review-section">
+      <div class="review-section-head"><h3>Duplicate Events</h3><span class="chip chip-amber" id="review-duplicate-chip">0 open</span></div>
+      <div class="review-list" id="review-duplicates-list"></div>
+    </div>
+
+    <div class="review-section">
+      <div class="review-section-head"><h3>Suggestions</h3><span class="chip chip-blue" id="review-suggestion-chip">0 ideas</span></div>
+      <div class="review-list" id="review-suggestions-list"></div>
     </div>
   </div>
 
-  <div class="card" style="margin-top:1rem">
-    <div class="card-title"><span class="ct-icon">📚</span> Lecture breakdown</div>
-    <div id="lec-breakdown" style="display:flex;flex-direction:column;gap:6px;margin-top:.5rem"></div>
+  <div class="page" id="page-analytics">
+    <div class="stats-row">
+      <div class="stat-box"><div class="stat-num" id="an-total-lec-hrs">0h</div><div class="stat-label">Lecture hrs/week</div></div>
+      <div class="stat-box"><div class="stat-num" id="an-total-study-hrs">0h</div><div class="stat-label">Study hrs/day</div></div>
+      <div class="stat-box"><div class="stat-num" id="an-total-events">0</div><div class="stat-label">Events/week</div></div>
+      <div class="stat-box"><div class="stat-num" id="an-free-hrs">0h</div><div class="stat-label">Free hrs/day</div></div>
+    </div>
+    <div class="card" style="margin-top:14px">
+      <div class="card-title"><span class="ct-icon">A</span> Lecture breakdown</div>
+      <div id="lec-breakdown"></div>
+    </div>
+    <div class="card" style="margin-top:14px">
+      <div class="card-title"><span class="ct-icon">B</span> Study block breakdown</div>
+      <div id="blk-breakdown"></div>
+    </div>
   </div>
 
-  <div class="card" style="margin-top:1rem">
-    <div class="card-title"><span class="ct-icon">🎯</span> Study block breakdown</div>
-    <div id="blk-breakdown" style="display:flex;flex-direction:column;gap:6px;margin-top:.5rem"></div>
-  </div>
-
-</div>
-
-<!-- ══════════════════════════════════════════════════════════════════════════
-     PAGE: SETTINGS
-══════════════════════════════════════════════════════════════════════════ -->
-<div class="page" id="page-settings">
-  <div class="card">
-    <div class="card-title"><span class="ct-icon">⚙️</span> Settings</div>
-
-    <div class="settings-row">
-      <div><div class="settings-label">Theme</div><div class="settings-desc">Light or dark interface</div></div>
-      <button class="btn btn-outline btn-sm" onclick="toggleTheme()" id="theme-setting-btn">Toggle theme</button>
-    </div>
-    <div class="settings-row">
-      <div><div class="settings-label">Timezone</div><div class="settings-desc">Used when creating calendar events</div></div>
-      <select class="input input-sm" id="tz-select" style="width:200px" onchange="S.tz=this.value;save()">
-        <option value="Asia/Kolkata">Asia/Kolkata (IST)</option>
-        <option value="Asia/Dubai">Asia/Dubai (GST)</option>
-        <option value="America/New_York">America/New_York (EST)</option>
-        <option value="America/Los_Angeles">America/Los_Angeles (PST)</option>
-        <option value="Europe/London">Europe/London (GMT)</option>
-        <option value="UTC">UTC</option>
-      </select>
-    </div>
-    <div class="settings-row">
-      <div><div class="settings-label">Auto-save</div><div class="settings-desc">Save timetable to browser storage automatically</div></div>
-      <button class="toggle on" id="autosave-toggle" onclick="toggleAutosave()"></button>
-    </div>
-    <div class="settings-row">
-      <div><div class="settings-label">Sync history</div><div class="settings-desc" id="fps-count-label">0 events tracked</div></div>
-      <button class="btn btn-red btn-sm" onclick="resetSyncHistory()">Reset history</button>
-    </div>
-    <div class="settings-row">
-      <div><div class="settings-label">Google Client ID</div><div class="settings-desc">Used to connect Google Calendar</div></div>
-      <button class="btn btn-outline btn-sm" onclick="showPage('dashboard')">Change in Dashboard</button>
-    </div>
-    <div class="settings-row">
-      <div><div class="settings-label">Export all data</div><div class="settings-desc">Download lectures, blocks, exams as JSON</div></div>
-      <button class="btn btn-outline btn-sm" onclick="exportJSON()">Export JSON</button>
-    </div>
-    <div class="settings-row">
-      <div><div class="settings-label">Clear all data</div><div class="settings-desc">Wipes lectures, blocks, exams and sync history from this browser</div></div>
-      <button class="btn btn-danger btn-sm" onclick="clearAllData()">Clear everything</button>
+  <div class="page" id="page-settings">
+    <div class="card">
+      <div class="card-title"><span class="ct-icon">S</span> Settings</div>
+      <div class="block-row"><div><strong>Theme</strong><div style="font-size:12px;color:var(--text2)">Light or dark interface</div></div><button class="btn btn-outline btn-sm" onclick="toggleTheme()">Toggle</button></div>
+      <div class="block-row"><div><strong>Timezone</strong><div style="font-size:12px;color:var(--text2)">Used when creating calendar events</div></div><select class="input" id="tz-select" style="max-width:240px" onchange="S.tz=this.value;save()"><option value="Asia/Kolkata">Asia/Kolkata</option><option value="UTC">UTC</option><option value="America/New_York">America/New_York</option><option value="Europe/London">Europe/London</option></select></div>
+      <div class="block-row"><div><strong>Sync history</strong><div id="fps-count-label" style="font-size:12px;color:var(--text2)">0 events tracked</div></div><button class="btn btn-red btn-sm" onclick="resetSyncHistory()">Reset</button></div>
+      <div class="block-row"><div><strong>Export all data</strong><div style="font-size:12px;color:var(--text2)">Download lectures, blocks and exams</div></div><button class="btn btn-outline btn-sm" onclick="exportJSON()">Export JSON</button></div>
+      <div class="block-row"><div><strong>Clear all data</strong><div style="font-size:12px;color:var(--text2)">Wipes local StudySync data</div></div><button class="btn btn-danger btn-sm" onclick="clearAllData()">Clear everything</button></div>
     </div>
   </div>
 </div>
 
-</div><!-- /app -->
-
-<!-- ══════════════════════════════════════════════════════════════════════════
-     MODALS
-══════════════════════════════════════════════════════════════════════════ -->
-
-<!-- Setup guide -->
-<div class="modal-bg hidden" id="setup-modal" onclick="if(event.target===this)closeModal('setup-modal')">
-  <div class="modal">
-    <div class="modal-title">🔑 Google OAuth setup (~5 min)</div>
-    <ul class="guide-steps">
-      <li><div class="gn">1</div><div>Go to <a href="https://console.cloud.google.com" target="_blank">console.cloud.google.com</a> → create a project</div></li>
-      <li><div class="gn">2</div><div><strong>APIs & Services → Library</strong> → enable <strong>Google Calendar API</strong></div></li>
-      <li><div class="gn">3</div><div><strong>OAuth consent screen</strong> → External → fill in App name → Save → Add yourself as test user</div></li>
-      <li><div class="gn">4</div><div><strong>Credentials → Create → OAuth Client ID → Web application</strong></div></li>
-      <li><div class="gn">5</div><div>Authorized JS origins: <code>https://yourusername.github.io</code> and <code>http://localhost:8080</code></div></li>
-      <li><div class="gn">6</div><div>Copy <strong>Client ID</strong> → paste in Dashboard</div></li>
-    </ul>
-    <div class="modal-footer">
-      <button class="btn btn-outline" onclick="closeModal('setup-modal')">Close</button>
-      <a class="btn btn-primary" href="https://console.cloud.google.com" target="_blank">Open console →</a>
-    </div>
-  </div>
-</div>
-
-<!-- Duplicate report modal -->
-<div class="modal-bg hidden" id="dup-modal" onclick="if(event.target===this)closeModal('dup-modal')">
-  <div class="modal modal-lg">
-    <div class="modal-title">🔍 Duplicate check</div>
-    <p id="dup-intro" style="font-size:13px;color:var(--text2);margin-bottom:1rem"></p>
-    <div id="dup-list" style="max-height:320px;overflow-y:auto"></div>
-    <div class="progress" style="margin:.75rem 0;display:none" id="dup-prog-wrap">
-      <div class="progress-bar" id="dup-prog-bar" style="width:0%;background:linear-gradient(90deg,var(--red),var(--amber))"></div>
-    </div>
-    <div class="hidden alert alert-success" id="dup-done-msg" style="margin-top:.5rem"></div>
-    <div class="modal-footer">
-      <button class="btn btn-outline" onclick="closeModal('dup-modal')">Close</button>
-      <button class="btn btn-outline" id="skip-dups-btn" onclick="closeModal('dup-modal')">Skip duplicates</button>
-      <button class="btn btn-danger" id="del-dups-btn" onclick="deleteDuplicates()" disabled>Delete duplicates</button>
-    </div>
-  </div>
-</div>
-
-<!-- Sync preview modal -->
 <div class="modal-bg hidden" id="preview-modal" onclick="if(event.target===this)closeModal('preview-modal')">
   <div class="modal modal-lg">
-    <div class="modal-title">👁 Sync preview</div>
-    <p style="font-size:13px;color:var(--text2);margin-bottom:1rem" id="preview-summary"></p>
-    <div id="preview-list" style="max-height:360px;overflow-y:auto"></div>
+    <div class="modal-title">Sync preview</div>
+    <p id="preview-summary" style="font-size:13px;color:var(--text2);margin-bottom:12px"></p>
+    <div id="preview-list" style="max-height:360px;overflow:auto"></div>
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeModal('preview-modal')">Cancel</button>
       <button class="btn btn-primary" onclick="closeModal('preview-modal');runSync(true)">Confirm sync</button>
@@ -727,44 +374,26 @@ select.input option{background:var(--surface2)}
   </div>
 </div>
 
-<!-- Delete progress modal -->
 <div class="modal-bg hidden" id="del-modal">
   <div class="modal">
-    <div class="modal-title" id="del-modal-title">Deleting…</div>
-    <p style="font-size:13px;color:var(--text2);margin-top:4px" id="del-modal-sub"></p>
-    <div class="progress" style="margin:1rem 0">
-      <div class="progress-bar" id="del-prog-bar" style="width:0%;background:linear-gradient(90deg,var(--red),var(--amber))"></div>
-    </div>
+    <div class="modal-title" id="del-modal-title">Deleting...</div>
+    <p id="del-modal-sub" style="font-size:13px;color:var(--text2)"></p>
+    <div class="progress" style="margin:14px 0"><div class="progress-bar" id="del-prog-bar"></div></div>
     <div class="log-box" id="del-log"></div>
-    <div class="hidden" id="del-done" style="margin-top:1rem">
+    <div class="hidden" id="del-done" style="margin-top:12px">
       <div class="alert alert-success" id="del-done-msg"></div>
-      <div style="margin-top:.75rem;display:flex;justify-content:flex-end">
-        <button class="btn btn-outline btn-sm" onclick="closeModal('del-modal')">Close</button>
-      </div>
+      <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('del-modal')">Close</button></div>
     </div>
   </div>
 </div>
 
-<!-- Colour picker modal -->
-<div class="modal-bg hidden" id="color-modal" onclick="if(event.target===this)closeModal('color-modal')">
-  <div class="modal" style="max-width:320px">
-    <div class="modal-title">🎨 Block colour</div>
-    <div class="color-swatch-grid" id="color-swatches"></div>
-    <div class="modal-footer">
-      <button class="btn btn-outline" onclick="closeModal('color-modal')">Cancel</button>
-      <button class="btn btn-primary" onclick="applyColor()">Apply</button>
-    </div>
-  </div>
-</div>
-
-<!-- Exam modal -->
 <div class="modal-bg hidden" id="exam-modal" onclick="if(event.target===this)closeModal('exam-modal')">
-  <div class="modal" style="max-width:360px">
+  <div class="modal">
     <div class="modal-title" id="exam-modal-title">Add exam</div>
-    <div class="col" style="gap:10px">
-      <div><label class="lbl">Name</label><input class="input" id="exam-name" placeholder="e.g. JEE Mains"></div>
+    <div class="col">
+      <div><label class="lbl">Name</label><input class="input" id="exam-name"></div>
       <div><label class="lbl">Date</label><input type="date" class="input" id="exam-date"></div>
-      <div><label class="lbl">Note</label><input class="input" id="exam-note" placeholder="Optional"></div>
+      <div><label class="lbl">Note</label><input class="input" id="exam-note"></div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeModal('exam-modal')">Cancel</button>
@@ -773,1389 +402,770 @@ select.input option{background:var(--surface2)}
   </div>
 </div>
 
-<!-- Undo banner (fixed bottom) -->
-<div id="undo-banner" class="hidden" style="position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--surface);border:1px solid var(--border2);border-radius:var(--r-sm);padding:.6rem 1rem;font-size:13px;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow);z-index:400">
-  <span id="undo-msg"></span>
-  <button class="btn btn-outline btn-sm" onclick="undoAction()">Undo</button>
-  <button class="btn btn-ghost btn-sm" onclick="dismissUndo()">✕</button>
+<div id="mobile-nav">
+  <button class="mob-tab active" id="mob-dashboard" onclick="showPage('dashboard')">Home</button>
+  <button class="mob-tab" id="mob-timetable" onclick="showPage('timetable')">Timetable</button>
+  <button class="mob-tab" id="mob-calendar" onclick="showPage('calendar')">Calendar</button>
+  <button class="mob-tab" id="mob-review" onclick="showPage('review')">Review</button>
+  <button class="mob-tab" id="mob-settings" onclick="showPage('settings')">Settings</button>
 </div>
 
-<!-- Keyboard shortcuts -->
-<div class="modal-bg hidden" id="shortcuts-modal" onclick="if(event.target===this)closeModal('shortcuts-modal')">
-  <div class="modal" style="max-width:380px">
-    <div class="modal-title">⌨ Keyboard shortcuts</div>
-    <div class="shortcut-grid">
-      <span class="shortcut-key">Ctrl+Z</span><span>Undo last action</span>
-      <span class="shortcut-key">Ctrl+S</span><span>Force save</span>
-      <span class="shortcut-key">Ctrl+E</span><span>Export JSON</span>
-      <span class="shortcut-key">Ctrl+1–5</span><span>Switch page</span>
-      <span class="shortcut-key">?</span><span>Show this modal</span>
-    </div>
-    <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('shortcuts-modal')">Close</button></div>
-  </div>
-</div>
-
-<!-- Tab button style (inline to avoid collision) -->
-<style>
-.tab-btn{padding:5px 14px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid var(--border2);background:transparent;color:var(--text2);transition:all var(--transition)}
-.tab-btn.active{background:var(--accent-dim);color:var(--accent2);border-color:rgba(123,104,238,.35)}
-</style>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
 'use strict';
 
-// ════════════════════════════════════════════════════════════════════════════
-//  CONSTANTS
-// ════════════════════════════════════════════════════════════════════════════
-const DAYS_FULL  = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-const DAYS_SHORT = ['Su','Mo','Tu','We','Th','Fr','Sa'];
-const DAY_JS     = {Sunday:0,Monday:1,Tuesday:2,Wednesday:3,Thursday:4,Friday:5,Saturday:6};
-const ORDER      = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
-const COLORS     = ['#7b68ee','#34d399','#fbbf24','#f87171','#60a5fa','#f472b6','#a78bfa','#fb923c','#4ade80','#38bdf8'];
-const GCAL_SCOPE = 'https://www.googleapis.com/auth/calendar';
+const DAYS_FULL=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const DAYS_SHORT=['Su','Mo','Tu','We','Th','Fr','Sa'];
+const DAY_JS={Sunday:0,Monday:1,Tuesday:2,Wednesday:3,Thursday:4,Friday:5,Saturday:6};
+const ORDER=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+const GCAL_SCOPE='https://www.googleapis.com/auth/calendar';
+const FP_KEY='studysync_fps';
+const DATA_KEY='studysync_data';
 
-// ════════════════════════════════════════════════════════════════════════════
-//  STATE
-// ════════════════════════════════════════════════════════════════════════════
-let S = {
-  lectures: [],
-  blocks: [
-    {id:'jee',     emoji:'📐',name:'JEE Self Study', start:'06:00',end:'08:00',days:[1,2,3,4,5,6,0],color:'#7b68ee',enabled:true},
-    {id:'rev',     emoji:'🔁',name:'Daily Revision',  start:'08:15',end:'09:00',days:[1,2,3,4,5,6],  color:'#60a5fa',enabled:true},
-    {id:'sat',     emoji:'📊',name:'SAT Prep',         start:'20:00',end:'21:30',days:[1,2,3,4,5],    color:'#34d399',enabled:true},
-    {id:'ielts',   emoji:'🗣',name:'IELTS Practice',   start:'18:00',end:'19:00',days:[1,2,3,4,5,6],  color:'#fbbf24',enabled:true},
-    {id:'reading', emoji:'📖',name:'Book Reading',     start:'22:00',end:'22:45',days:[1,2,3,4,5,6,0],color:'#f472b6',enabled:true},
-    {id:'exercise',emoji:'🏃',name:'Exercise',          start:'17:00',end:'17:45',days:[1,2,3,4,5,6,0],color:'#fb923c',enabled:true},
-    {id:'mock',    emoji:'📝',name:'Mock Tests',        start:'10:00',end:'13:00',days:[6,0],           color:'#f87171',enabled:true},
+let S={
+  lectures:[],
+  blocks:[
+    {id:'jee',emoji:'M',name:'JEE Self Study',start:'06:00',end:'08:00',days:[1,2,3,4,5,6,0],color:'#7c6df2',enabled:true},
+    {id:'rev',emoji:'R',name:'Daily Revision',start:'08:15',end:'09:00',days:[1,2,3,4,5,6],color:'#60a5fa',enabled:true},
+    {id:'sat',emoji:'S',name:'SAT Prep',start:'20:00',end:'21:30',days:[1,2,3,4,5],color:'#34d399',enabled:true}
   ],
-  exams: [],
-  tz: 'Asia/Kolkata',
-  theme: 'dark',
-  autosave: true,
-  calTarget: 'studysync',
-  syncedBlocks: null, // null = all
+  exams:[],
+  tz:'Asia/Kolkata',
+  theme:'dark',
+  calTarget:'studysync',
+  syncedBlocks:null
 };
 
-let accessToken  = null;
-let studySyncCalId = null; // ID of the dedicated StudySync calendar
+let accessToken=null;
+let studySyncCalId=null;
+let retEvents=[];
+let retLectures=[];
+let retWeekStart=null;
+let currentRetTab='week';
+let reviewIssues={conflicts:[],duplicates:[],suggestions:[],ignored:new Set()};
 
-// Retrieve state
-let retEvents    = [];
-let retLectures  = [];
-let retWeekStart = null;
-let currentRetTab = 'week';
-
-// Undo stack
-let undoStack = [];
-let undoTimer = null;
-
-// Drag & drop
-let dragSrcIdx = null;
-
-// Color picker
-let colorTargetIdx = null;
-let colorSelected  = null;
-
-// FPs (fingerprints) for deduplication
-const FP_KEY = 'studysync_fps';
-const DATA_KEY = 'studysync_data';
-
-function loadFPs()  { try{return new Set(JSON.parse(localStorage.getItem(FP_KEY)||'[]'))}catch{return new Set()} }
-function saveFPs(s) { localStorage.setItem(FP_KEY,JSON.stringify([...s])) }
-function fp(ev)     { return ev.start.dateTime.slice(0,16)+'|'+ev.summary+'|'+ev.end.dateTime.slice(11,16) }
-
-// ════════════════════════════════════════════════════════════════════════════
-//  INIT
-// ════════════════════════════════════════════════════════════════════════════
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded',()=>{
   loadData();
   applyTheme();
-  renderAll();
   setWeeks(4);
   setRetRange(1);
+  renderAll();
   updateSyncStatusBar();
   updateFpsLabel();
-
-  // Keyboard shortcuts
-  document.addEventListener('keydown', e => {
-    const ctrl = e.ctrlKey || e.metaKey;
-    if(ctrl && e.key==='z'){ e.preventDefault(); undoAction(); }
-    if(ctrl && e.key==='s'){ e.preventDefault(); save(); toast('Saved','success'); }
-    if(ctrl && e.key==='e'){ e.preventDefault(); exportJSON(); }
-    if(e.key==='?' && !['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName)){
-      showModal('shortcuts-modal');
-    }
-    if(ctrl){
-      const map={'1':'dashboard','2':'timetable','3':'calendar','4':'analytics','5':'settings'};
-      if(map[e.key]){e.preventDefault();showPage(map[e.key]);}
-    }
-  });
-
-  // Sync UI toggles with loaded state
-  document.getElementById('autosave-toggle')?.classList.toggle('on', S.autosave);
-  document.querySelector(`input[name="cal-target"][value="${S.calTarget}"]`)?.setAttribute('checked','');
-
-  // Autosave every 30s
-  setInterval(()=>{ if(S.autosave) save(); },30000);
+  updateReviewState();
 });
 
-// ════════════════════════════════════════════════════════════════════════════
-//  PERSIST
-// ════════════════════════════════════════════════════════════════════════════
-function save() {
-  try { localStorage.setItem(DATA_KEY, JSON.stringify(S)); } catch(e) {}
+function save(){try{localStorage.setItem(DATA_KEY,JSON.stringify(S));}catch(e){}}
+function loadData(){
+  try{
+    const d=JSON.parse(localStorage.getItem(DATA_KEY)||'{}');
+    if(d.lectures)S.lectures=d.lectures;
+    if(d.blocks)S.blocks=d.blocks;
+    if(d.exams)S.exams=d.exams;
+    if(d.tz)S.tz=d.tz;
+    if(d.theme)S.theme=d.theme;
+    if(d.calTarget)S.calTarget=d.calTarget;
+    if(d.syncedBlocks!==undefined)S.syncedBlocks=d.syncedBlocks;
+    const cid=localStorage.getItem('gcal_cid');
+    if(cid&&document.getElementById('gcal-cid'))document.getElementById('gcal-cid').value=cid;
+  }catch(e){}
 }
-function loadData() {
-  try {
-    const d = JSON.parse(localStorage.getItem(DATA_KEY)||'{}');
-    if(d.lectures) S.lectures = d.lectures;
-    if(d.blocks)   S.blocks   = d.blocks;
-    if(d.exams)    S.exams    = d.exams;
-    if(d.tz)       S.tz       = d.tz;
-    if(d.theme)    S.theme    = d.theme;
-    if(d.calTarget) S.calTarget = d.calTarget;
-    if(d.syncedBlocks !== undefined) S.syncedBlocks = d.syncedBlocks;
-    document.documentElement.dataset.theme = S.theme;
-    const cid = localStorage.getItem('gcal_cid');
-    if(cid) document.getElementById('gcal-cid').value = cid;
-    const tzSel = document.getElementById('tz-select');
-    if(tzSel && d.tz) tzSel.value = d.tz;
-  } catch(e) {}
-}
-function clearAllData() {
-  if(!confirm('Delete all lectures, blocks, exams and sync history from this browser?')) return;
-  localStorage.removeItem(DATA_KEY);
-  localStorage.removeItem(FP_KEY);
-  S = { lectures:[], blocks:[], exams:[], tz:'Asia/Kolkata', theme:S.theme, autosave:true, calTarget:'studysync', syncedBlocks:null };
-  renderAll();
-  updateFpsLabel();
-  toast('All data cleared');
+function loadFPs(){try{return new Set(JSON.parse(localStorage.getItem(FP_KEY)||'[]'));}catch{return new Set();}}
+function saveFPs(s){localStorage.setItem(FP_KEY,JSON.stringify([...s]));}
+function fp(ev){return `${ev.start.dateTime.slice(0,16)}|${ev.summary}|${ev.end.dateTime.slice(11,16)}`;}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+function toISO(d){return d.toISOString().split('T')[0];}
+function toMins(t){const[a,b]=String(t||'00:00').split(':').map(Number);return a*60+b;}
+function daysBetween(a,b){return Math.round((b-a)/86400000)+1;}
+function getThisMonday(){const t=new Date(),m=new Date(t);m.setDate(t.getDate()-((t.getDay()+6)%7));return m;}
+function showModal(id){document.getElementById(id)?.classList.remove('hidden');}
+function closeModal(id){document.getElementById(id)?.classList.add('hidden');}
+function toast(msg,type='info'){
+  const stack=document.getElementById('toast-stack');
+  const el=document.createElement('div');
+  el.className='toast '+type;
+  el.textContent=msg;
+  stack.appendChild(el);
+  setTimeout(()=>{el.style.opacity='0';el.style.transform='translateY(8px)';el.style.transition='all .25s';setTimeout(()=>el.remove(),260);},3200);
 }
 
-// ════════════════════════════════════════════════════════════════════════════
-//  NAVIGATION
-// ════════════════════════════════════════════════════════════════════════════
-function showPage(name) {
+function showPage(name){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
-  document.getElementById('page-'+name).classList.add('active');
-  document.getElementById('tab-'+name).classList.add('active');
+  document.getElementById('page-'+name)?.classList.add('active');
+  document.getElementById('tab-'+name)?.classList.add('active');
   updateMobNav(name);
-  if(name==='analytics') renderAnalytics();
-  if(name==='timetable'){ renderHourGrid(); detectConflicts(); }
-  if(name==='calendar')  renderBlockSelector();
-  if(name==='dashboard'){ renderDashboard(); renderPreview('dash-week-grid'); }
-  if(name==='settings')  updateFpsLabel();
+  if(name==='dashboard')renderDashboard();
+  if(name==='timetable'){renderHourGrid();detectLocalConflicts();}
+  if(name==='calendar')renderBlockSelector();
+  if(name==='review')renderReviewPage();
+  if(name==='analytics')renderAnalytics();
+  if(name==='settings')updateFpsLabel();
 }
-function showModal(id)  { document.getElementById(id).classList.remove('hidden'); }
-function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+function updateMobNav(page){
+  document.querySelectorAll('.mob-tab').forEach(b=>b.classList.remove('active'));
+  document.getElementById('mob-'+page)?.classList.add('active');
+}
+function applyTheme(){
+  document.documentElement.dataset.theme=S.theme;
+  const b=document.getElementById('theme-btn');
+  if(b)b.textContent=S.theme==='dark'?'D':'L';
+}
+function toggleTheme(){S.theme=S.theme==='dark'?'light':'dark';applyTheme();save();}
 
-// ════════════════════════════════════════════════════════════════════════════
-//  THEME
-// ════════════════════════════════════════════════════════════════════════════
-function applyTheme() {
-  document.documentElement.dataset.theme = S.theme;
-  document.getElementById('theme-btn').textContent = S.theme==='dark'?'🌙':'☀️';
-}
-function toggleTheme() {
-  S.theme = S.theme==='dark'?'light':'dark';
-  applyTheme(); save();
-}
-function toggleAutosave() {
-  S.autosave = !S.autosave;
-  document.getElementById('autosave-toggle').classList.toggle('on', S.autosave);
-  save(); // always save preference
+function cleanClientId(value) {
+  return String(value || '')
+    .replace(/[\s\u200B-\u200D\uFEFF]/g, '')
+    .trim();
 }
 
-// ════════════════════════════════════════════════════════════════════════════
-//  GOOGLE AUTH
-// ════════════════════════════════════════════════════════════════════════════
-function initGoogle() {
-  const cid = document.getElementById('gcal-cid').value.trim();
-  if(!cid){ toast('Paste your Client ID first','error'); return; }
-  if(!window.google){ toast('Google script loading — wait a moment','warn'); return; }
+function clearSavedClientId() {
+  localStorage.removeItem('gcal_cid');
+  const input = document.getElementById('gcal-cid');
+  if (input) input.value = '';
+  toast('Saved Client ID cleared. Paste it again.', 'info');
+}
+
+async function initGoogle() {
+  const cidInput = document.getElementById('gcal-cid');
+
+  // IMPORTANT: removes hidden spaces/newlines from copied Google Client IDs.
+  const cid = cleanClientId(cidInput.value);
+  cidInput.value = cid;
+
+  console.log('StudySync OAuth client_id being sent:', cid);
+  console.log('StudySync current origin:', location.origin);
+  console.log('StudySync current protocol:', location.protocol);
+
+  if (!cid) {
+    toast('Paste your Client ID first', 'error');
+    return;
+  }
+
+  if (!/^[0-9]+-[A-Za-z0-9_-]+\.apps\.googleusercontent\.com$/.test(cid)) {
+    toast('Client ID format is invalid. Clear it and paste the Web application Client ID again.', 'error');
+    return;
+  }
+
+  if (location.protocol === 'file:') {
+    toast('Open this from http://localhost:8080, not file://', 'error');
+    return;
+  }
+
+  if (!window.google || !google.accounts || !google.accounts.oauth2) {
+    toast('Google OAuth script is not loaded yet. Wait a moment and try again.', 'warn');
+    return;
+  }
+
   localStorage.setItem('gcal_cid', cid);
 
   const client = google.accounts.oauth2.initTokenClient({
     client_id: cid,
     scope: GCAL_SCOPE,
-    callback: async resp => {
-      if(resp.error){ toast('Auth error: '+resp.error,'error'); return; }
+    callback: async (resp) => {
+      if (resp.error) {
+        toast('Auth error: ' + resp.error, 'error');
+        return;
+      }
+
       accessToken = resp.access_token;
+
       try {
-        const info = await gfetch('https://www.googleapis.com/oauth2/v3/userinfo');
         document.getElementById('dash-auth-area').classList.add('hidden');
         document.getElementById('dash-connected').classList.remove('hidden');
-        document.getElementById('dash-email').textContent = info.email||'';
-        document.getElementById('nav-conn-badge').textContent = '● Connected';
-        document.getElementById('nav-conn-badge').style.background='var(--green-dim)';
-        document.getElementById('nav-conn-badge').style.color='var(--green)';
-        document.getElementById('cal-no-auth').classList.add('hidden');
-        document.getElementById('cal-auth-panel').classList.remove('hidden');
-        document.getElementById('ret-no-auth').classList.add('hidden');
-        document.getElementById('ret-auth-panel').classList.remove('hidden');
-        document.getElementById('sync-btn').disabled = false;
+        document.getElementById('dash-email').textContent = 'Google Connected';
+
         await ensureStudySyncCalendar();
-        toast('Connected to Google Calendar','success');
-      } catch(e){ toast('Error: '+e.message,'error'); }
+
+        document.getElementById('nav-conn-badge').textContent = 'Connected';
+        document.getElementById('nav-conn-badge').style.background = 'var(--green-dim)';
+        document.getElementById('nav-conn-badge').style.color = 'var(--green)';
+
+        document.getElementById('cal-no-auth')?.classList.add('hidden');
+        document.getElementById('cal-auth-panel')?.classList.remove('hidden');
+        document.getElementById('ret-no-auth')?.classList.add('hidden');
+        document.getElementById('ret-auth-panel')?.classList.remove('hidden');
+        document.getElementById('sync-btn').disabled = false;
+
+        toast('Google Calendar connected', 'success');
+      } catch (e) {
+        toast('Google Auth Error: ' + e.message, 'error');
+      }
     }
   });
-  client.requestAccessToken();
+
+  client.requestAccessToken({ prompt: 'consent' });
 }
 
-function signOut() {
-  accessToken = null; studySyncCalId = null;
+function signOut(){
+  accessToken=null;studySyncCalId=null;
   document.getElementById('dash-connected').classList.add('hidden');
   document.getElementById('dash-auth-area').classList.remove('hidden');
+  document.getElementById('nav-conn-badge').textContent='Not connected';
+  document.getElementById('nav-conn-badge').style.color='';
   document.getElementById('cal-no-auth').classList.remove('hidden');
   document.getElementById('cal-auth-panel').classList.add('hidden');
   document.getElementById('ret-no-auth').classList.remove('hidden');
   document.getElementById('ret-auth-panel').classList.add('hidden');
-  document.getElementById('sync-btn').disabled = true;
-  document.getElementById('nav-conn-badge').textContent = 'Not connected';
-  document.getElementById('nav-conn-badge').style.background='';
-  document.getElementById('nav-conn-badge').style.color='';
   toast('Signed out');
 }
-
-async function gfetch(url, opts={}) {
-  const res = await fetch(url, {
-    ...opts,
-    headers:{ Authorization:'Bearer '+accessToken, 'Content-Type':'application/json', ...(opts.headers||{}) }
-  });
-  if(res.status===204) return {};
-  if(!res.ok){ const e=await res.json(); throw new Error(e.error?.message||res.status); }
+async function gfetch(url,opts={}){
+  const res=await fetch(url,{...opts,headers:{Authorization:'Bearer '+accessToken,'Content-Type':'application/json',...(opts.headers||{})}});
+  if(res.status===204)return {};
+  if(!res.ok){let msg=res.status;try{const e=await res.json();msg=e.error?.message||msg;}catch{}throw new Error(msg);}
   return res.json();
 }
-
-async function ensureStudySyncCalendar() {
-  try {
-    const data = await gfetch('https://www.googleapis.com/calendar/v3/users/me/calendarList');
-    const existing = (data.items||[]).find(c=>c.summary==='StudySync');
-    if(existing){ studySyncCalId=existing.id; }
-    else {
-      const nc = await gfetch('https://www.googleapis.com/calendar/v3/calendars',{
-        method:'POST', body:JSON.stringify({summary:'StudySync',description:'Managed by StudySync app',timeZone:S.tz})
-      });
-      studySyncCalId = nc.id;
-      toast('Created StudySync calendar','success');
+async function ensureStudySyncCalendar(){
+  try{
+    const data=await gfetch('https://www.googleapis.com/calendar/v3/users/me/calendarList');
+    const existing=(data.items||[]).find(c=>c.summary==='StudySync');
+    if(existing)studySyncCalId=existing.id;
+    else{
+      const c=await gfetch('https://www.googleapis.com/calendar/v3/calendars',{method:'POST',body:JSON.stringify({summary:'StudySync',description:'Managed by StudySync',timeZone:S.tz})});
+      studySyncCalId=c.id;
     }
-    document.getElementById('dash-cal-name').textContent = 'StudySync calendar';
-  } catch(e){ toast('Could not get/create StudySync calendar: '+e.message,'warn'); }
+    document.getElementById('dash-cal-name').textContent='StudySync calendar';
+  }catch(e){toast('Could not prepare StudySync calendar: '+e.message,'warn');}
 }
-
-function getCalId() {
-  return S.calTarget==='studysync' && studySyncCalId ? studySyncCalId : 'primary';
-}
-
-function updateCalTarget() {
-  S.calTarget = document.querySelector('input[name="cal-target"]:checked').value;
+function getCalId(){return S.calTarget==='studysync'&&studySyncCalId?studySyncCalId:'primary';}
+function updateCalTarget(){
+  const checked=document.querySelector('input[name="cal-target"]:checked');
+  if(checked)S.calTarget=checked.value;
   save();
 }
 
-// ════════════════════════════════════════════════════════════════════════════
-//  TWO-WAY SYNC
-// ════════════════════════════════════════════════════════════════════════════
-async function doTwoWaySync() {
-  if(!accessToken){ toast('Not connected','error'); return; }
-  const btn  = document.getElementById('sync2w-spin');
-  btn.classList.remove('hidden');
-  try {
-    // Fetch last 2 weeks + next 8 weeks
-    const from = new Date(); from.setDate(from.getDate()-14);
-    const to   = new Date(); to.setDate(to.getDate()+56);
-    const calId = getCalId();
-    const tMin = encodeURIComponent(from.toISOString());
-    const tMax = encodeURIComponent(to.toISOString());
-    const data = await gfetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calId)}/events?timeMin=${tMin}&timeMax=${tMax}&singleEvents=true&orderBy=startTime&maxResults=2500`);
-    const evs = (data.items||[]).filter(e=>e.start?.dateTime);
-    // Extract unique lectures
-    const lecs = evs.filter(e=>classifyEv(e)==='lec');
-    const seen = new Set();
-    const parsed = [];
-    lecs.forEach(ev=>{
-      const dow=new Date(ev.start.dateTime).getDay();
-      const dayName=DAYS_FULL[dow];
-      const st=ev.start.dateTime.slice(11,16);
-      const en=ev.end.dateTime.slice(11,16);
-      const subj=(ev.summary||'').replace(/^📚\s*/,'').trim();
-      const loc=ev.location||'';
-      const key=`${dayName}|${subj}|${st}|${en}`;
-      if(!seen.has(key)){ seen.add(key); parsed.push({subject:subj,day:dayName,start:st,end:en,location:loc}); }
-    });
-    if(parsed.length){
-      S.lectures = parsed;
-      rebuildLecTable();
-      updateLecCount();
-      renderAll();
-      save();
-      toast(`Two-way sync: loaded ${parsed.length} unique lectures`,'success');
-    } else {
-      toast('No StudySync lectures found in calendar. Your editor is up to date.','info');
-    }
-  } catch(e){ toast('Two-way sync failed: '+e.message,'error'); }
-  finally{ btn.classList.add('hidden'); }
-}
-
-// ════════════════════════════════════════════════════════════════════════════
-//  RENDER ALL
-// ════════════════════════════════════════════════════════════════════════════
-function renderAll() {
+function renderAll(){
   rebuildLecTable();
   renderBlocks();
   renderPreview('dash-week-grid');
-  renderHourGrid();
   renderDashboard();
+  renderHourGrid();
   renderCountdowns();
-  detectConflicts();
-  updateLecCount();
+  detectLocalConflicts();
+  updateReviewBadge();
+  save();
+}
+function renderDashboard(){
+  const lecMins=S.lectures.reduce((s,l)=>s+Math.max(0,toMins(l.end)-toMins(l.start)),0);
+  const enabled=S.blocks.filter(b=>b.enabled);
+  const blkPerDay=Math.round(enabled.reduce((s,b)=>s+b.days.length/7,0)*10)/10;
+  const studyMins=enabled.reduce((s,b)=>s+Math.max(0,toMins(b.end)-toMins(b.start))*b.days.length/7,0);
+  setText('ds-lec',S.lectures.length);
+  setText('ds-lhrs',Math.round(lecMins/60*10)/10+'h');
+  setText('ds-blk',blkPerDay);
+  setText('ds-shrs',Math.round(studyMins/60*10)/10+'h');
+  setText('ds-conf',reviewIssues.conflicts.length);
+  setText('dash-calendar-status',reviewIssueCount()?`${reviewIssueCount()} Issues Need Review`:'Healthy');
+  renderPreview('dash-week-grid');
+}
+function setText(id,v){const el=document.getElementById(id);if(el)el.textContent=v;}
+
+function rebuildLecTable(){
+  const body=document.getElementById('lec-body');
+  if(!body)return;
+  body.innerHTML=S.lectures.map((l,i)=>`
+    <tr>
+      <td><select class="input" onchange="S.lectures[${i}].day=this.value;renderAll()">${ORDER.map(d=>`<option ${l.day===d?'selected':''}>${d}</option>`).join('')}</select></td>
+      <td><input class="input" value="${esc(l.subject)}" oninput="S.lectures[${i}].subject=this.value;save()"></td>
+      <td><input class="input" type="time" value="${l.start}" onchange="S.lectures[${i}].start=this.value;renderAll()"></td>
+      <td><input class="input" type="time" value="${l.end}" onchange="S.lectures[${i}].end=this.value;renderAll()"></td>
+      <td><input class="input" value="${esc(l.location||'')}" oninput="S.lectures[${i}].location=this.value;save()"></td>
+      <td><button class="btn btn-red btn-sm" onclick="delLecture(${i})">Delete</button></td>
+    </tr>`).join('');
+  setText('lec-count-label',`${S.lectures.length} lecture${S.lectures.length!==1?'s':''}`);
+}
+function addLecture(lec){S.lectures.push(lec||{subject:'',day:'Monday',start:'09:00',end:'10:00',location:''});renderAll();}
+function delLecture(i){S.lectures.splice(i,1);renderAll();}
+function loadSample(){
+  S.lectures=[
+    {subject:'Physics',day:'Monday',start:'10:00',end:'11:00',location:'Room 101'},
+    {subject:'Maths',day:'Tuesday',start:'09:00',end:'10:30',location:'Room 204'},
+    {subject:'Chemistry',day:'Wednesday',start:'11:00',end:'12:00',location:'Lab'}
+  ];
+  renderAll();
+}
+function removeDupLectures(){
+  const seen=new Set();
+  S.lectures=S.lectures.filter(l=>{const k=[l.subject,l.day,l.start,l.end,l.location||''].join('|').toLowerCase();if(seen.has(k))return false;seen.add(k);return true;});
+  renderAll();
+  toast('Duplicate lectures removed','success');
+}
+
+function renderBlocks(){
+  const list=document.getElementById('block-list');
+  if(!list)return;
+  list.innerHTML=S.blocks.map((b,i)=>`
+    <div class="block-row">
+      <button class="toggle ${b.enabled?'on':''}" onclick="S.blocks[${i}].enabled=!S.blocks[${i}].enabled;renderAll()"></button>
+      <div>
+        <div class="row">
+          <input class="input" style="max-width:220px" value="${esc(b.name)}" oninput="S.blocks[${i}].name=this.value;save()">
+          <input class="input" style="max-width:115px" type="time" value="${b.start}" onchange="S.blocks[${i}].start=this.value;renderAll()">
+          <input class="input" style="max-width:115px" type="time" value="${b.end}" onchange="S.blocks[${i}].end=this.value;renderAll()">
+        </div>
+        <div class="row" style="margin-top:7px">${[1,2,3,4,5,6,0].map(d=>`<button class="day-pill ${b.days.includes(d)?'on':''}" onclick="toggleBlockDay(${i},${d})">${DAYS_SHORT[d]}</button>`).join('')}</div>
+      </div>
+      <button class="btn btn-red btn-sm" onclick="delBlock(${i})">Delete</button>
+    </div>`).join('');
+}
+function addBlock(){S.blocks.push({id:'b'+Date.now(),emoji:'B',name:'Study block',start:'18:00',end:'19:00',days:[1,2,3,4,5],color:'#34d399',enabled:true});renderAll();}
+function delBlock(i){S.blocks.splice(i,1);renderAll();}
+function toggleBlockDay(i,d){const a=S.blocks[i].days;S.blocks[i].days=a.includes(d)?a.filter(x=>x!==d):[...a,d];renderAll();}
+function renderBlockSelector(){
+  const el=document.getElementById('block-selector');
+  if(!el)return;
+  const selected=S.syncedBlocks===null?S.blocks.map((_,i)=>i):S.syncedBlocks;
+  el.innerHTML=S.blocks.map((b,i)=>`<label class="chip"><input type="checkbox" ${selected.includes(i)?'checked':''} onchange="toggleSyncBlock(${i},this.checked)"> ${esc(b.name)}</label>`).join('');
+}
+function toggleSyncBlock(i,on){
+  let selected=S.syncedBlocks===null?S.blocks.map((_,idx)=>idx):[...S.syncedBlocks];
+  selected=on?[...new Set([...selected,i])]:selected.filter(x=>x!==i);
+  S.syncedBlocks=selected.length===S.blocks.length?null:selected;
   save();
 }
 
-// ════════════════════════════════════════════════════════════════════════════
-//  LECTURE EDITOR
-// ════════════════════════════════════════════════════════════════════════════
-function addLecture(lec) {
-  pushUndo('lecture added');
-  S.lectures.push(lec||{subject:'',day:'Monday',start:'09:00',end:'10:00',location:''});
-  rebuildLecTable(); updateLecCount(); renderAll(); save();
-}
-
-function removeLecture(i) {
-  pushUndo('lecture removed');
-  S.lectures.splice(i,1);
-  rebuildLecTable(); updateLecCount(); renderAll(); save();
-}
-
-function bulkDeleteLectures() {
-  const checks = document.querySelectorAll('.lec-check:checked');
-  if(!checks.length) return;
-  if(!confirm(`Delete ${checks.length} selected lecture${checks.length>1?'s':''}?`)) return;
-  pushUndo('bulk delete');
-  const indices = Array.from(checks).map(c=>+c.dataset.i).sort((a,b)=>b-a);
-  indices.forEach(i=>S.lectures.splice(i,1));
-  rebuildLecTable(); updateLecCount(); renderAll(); save();
-}
-
-function toggleSelectAll(el) {
-  document.querySelectorAll('.lec-check').forEach(c=>c.checked=el.checked);
-  document.getElementById('bulk-del-btn').disabled = !el.checked;
-}
-
-function removeDupLectures() {
-  const seen = new Set();
-  const orig = S.lectures.length;
-  S.lectures = S.lectures.filter(l=>{
-    const k=`${l.day}|${l.subject}|${l.start}|${l.end}`;
-    if(seen.has(k)) return false;
-    seen.add(k); return true;
+function weekEvents(){
+  const events=[];
+  ORDER.forEach(day=>{
+    const dow=DAY_JS[day];
+    S.lectures.filter(l=>l.day===day&&l.subject).forEach(l=>events.push({type:'lec',dow,title:l.subject,start:l.start,end:l.end}));
+    S.blocks.filter(b=>b.enabled&&b.days.includes(dow)).forEach(b=>events.push({type:'blk',dow,title:b.name,start:b.start,end:b.end}));
   });
-  const removed = orig - S.lectures.length;
-  if(removed){ toast(`Removed ${removed} duplicate lecture${removed>1?'s':''}`, 'success'); }
-  else { toast('No duplicate lectures found', 'info'); }
-  rebuildLecTable(); updateLecCount(); renderAll(); save();
+  return events;
 }
-
-function rebuildLecTable() {
-  const q = (document.getElementById('lec-search')?.value||'').toLowerCase();
-  const tbody = document.getElementById('lec-body');
-  if(!tbody) return;
-  tbody.innerHTML='';
-  const conflicts = findConflicts();
-  S.lectures.forEach((l,i)=>{
-    if(q && !l.subject.toLowerCase().includes(q) && !l.day.toLowerCase().includes(q)) return;
-    const hasConflict = conflicts.some(c=>c.type==='lec-lec' && (c.a===i||c.b===i));
-    const tr=document.createElement('tr');
-    tr.className='lec-row'+(hasConflict?' conflict-row':'');
-    tr.dataset.i=i;
-    tr.innerHTML=`
-      <td><input type="checkbox" class="lec-check" data-i="${i}" onchange="updateBulkBtn()"></td>
-      <td><select class="input" style="width:90px" onchange="S.lectures[${i}].day=this.value;renderAll();save()">
-        ${ORDER.map(d=>`<option ${d===l.day?'selected':''}>${d}</option>`).join('')}
-      </select></td>
-      <td><input class="input" value="${esc(l.subject)}" placeholder="Subject" onchange="S.lectures[${i}].subject=this.value;renderAll();save()" style="min-width:120px"></td>
-      <td><input type="time" class="input" value="${l.start}" onchange="S.lectures[${i}].start=this.value;renderAll();save()"></td>
-      <td><input type="time" class="input" value="${l.end}"   onchange="S.lectures[${i}].end=this.value;renderAll();save()"></td>
-      <td><input class="input" value="${esc(l.location||'')}" placeholder="Room" onchange="S.lectures[${i}].location=this.value;save()" style="min-width:80px"></td>
-      <td>${hasConflict?'<span class="conflict-icon" title="Overlaps with another event">⚠️</span>':''}<button class="btn btn-ghost btn-xs btn-icon" onclick="removeLecture(${i})">✕</button></td>`;
-    tbody.appendChild(tr);
-  });
-}
-
-function filterLectures() { rebuildLecTable(); }
-function updateLecCount() {
-  const el=document.getElementById('lec-count-label');
-  if(el) el.textContent=`${S.lectures.length} lecture${S.lectures.length!==1?'s':''}`;
-}
-function updateBulkBtn() {
-  const any=document.querySelectorAll('.lec-check:checked').length>0;
-  document.getElementById('bulk-del-btn').disabled=!any;
-}
-
-function loadSample() {
-  pushUndo('sample loaded');
-  S.lectures=[
-    {subject:'Physics',  day:'Monday',   start:'09:00',end:'10:30',location:'Lab 2'},
-    {subject:'Maths',    day:'Monday',   start:'11:00',end:'12:30',location:'Room 101'},
-    {subject:'Chemistry',day:'Tuesday',  start:'09:00',end:'10:30',location:'Lab 1'},
-    {subject:'English',  day:'Tuesday',  start:'14:00',end:'15:30',location:'Room 204'},
-    {subject:'Maths',    day:'Wednesday',start:'09:00',end:'10:30',location:'Room 101'},
-    {subject:'Physics',  day:'Wednesday',start:'11:00',end:'12:30',location:'Lab 2'},
-    {subject:'Biology',  day:'Thursday', start:'09:00',end:'10:30',location:'Lab 3'},
-    {subject:'Chemistry',day:'Friday',   start:'09:00',end:'10:30',location:'Lab 1'},
-    {subject:'Maths',    day:'Friday',   start:'11:00',end:'12:30',location:'Room 101'},
-  ];
-  rebuildLecTable(); updateLecCount(); renderAll(); save();
-  toast('Sample loaded','success');
-}
-
-// ════════════════════════════════════════════════════════════════════════════
-//  IMPORT / EXPORT
-// ════════════════════════════════════════════════════════════════════════════
-function exportJSON() {
-  const data={lectures:S.lectures,blocks:S.blocks,exams:S.exams};
-  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
-  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
-  a.download='studysync-timetable.json'; a.click();
-  toast('Exported','success');
-}
-function importJSON(e) {
-  const f=e.target.files[0]; if(!f) return;
-  const r=new FileReader();
-  r.onload=ev=>{
-    try {
-      const d=JSON.parse(ev.target.result);
-      pushUndo('import');
-      if(Array.isArray(d.lectures)) S.lectures=d.lectures;
-      if(Array.isArray(d.blocks))   S.blocks=d.blocks;
-      if(Array.isArray(d.exams))    S.exams=d.exams;
-      renderAll(); save();
-      toast(`Imported ${S.lectures.length} lectures, ${S.blocks.length} blocks`,'success');
-    } catch{ toast('Invalid JSON','error'); }
-  };
-  r.readAsText(f);
-  e.target.value='';
-}
-
-// ════════════════════════════════════════════════════════════════════════════
-//  STUDY BLOCKS
-// ════════════════════════════════════════════════════════════════════════════
-function renderBlocks() {
-  const list=document.getElementById('block-list'); if(!list) return;
-  const conflicts=findConflicts();
-  list.innerHTML=S.blocks.map((b,i)=>{
-    const isConflict=conflicts.some(c=>c.type!=='lec-lec'&&(c.a===i||c.b===i));
-    return `<div class="block-row${b.enabled?'':' disabled-block'}${isConflict?' conflict-block':''}"
-      draggable="true"
-      ondragstart="dragStart(${i})" ondragover="dragOver(event,${i})" ondrop="drop(event,${i})" ondragleave="dragLeave(this)" ondragend="dragEnd()">
-      <span class="drag-handle">⣿</span>
-      <span class="block-color-dot" style="background:${b.color||'#7b68ee'}" onclick="openColorPicker(${i})" title="Change colour"></span>
-      <input class="input input-sm" value="${esc(b.emoji||'')}" onchange="S.blocks[${i}].emoji=this.value;renderAll();save()" style="width:40px;text-align:center;font-size:1.1rem;padding:.2rem">
-      <input class="input input-sm" value="${esc(b.name)}" onchange="S.blocks[${i}].name=this.value;renderAll();save()" style="flex:1;min-width:100px;font-weight:500">
-      <input type="time" class="input input-sm" value="${b.start}" onchange="S.blocks[${i}].start=this.value;renderAll();save()" style="width:100px">
-      <span style="color:var(--text2);font-size:12px">–</span>
-      <input type="time" class="input input-sm" value="${b.end}"   onchange="S.blocks[${i}].end=this.value;renderAll();save()" style="width:100px">
-      <div class="day-pills">
-        ${DAYS_SHORT.map((d,di)=>`<div class="day-pill${b.days.includes(di)?' on':''}" onclick="toggleDay(${i},${di},this)">${d}</div>`).join('')}
-      </div>
-      <button class="toggle${b.enabled?' on':''}" onclick="toggleBlock(${i})" title="${b.enabled?'Disable':'Enable'}"></button>
-      <button class="btn btn-ghost btn-xs btn-icon" onclick="dupBlock(${i})" title="Duplicate">⎘</button>
-      <button class="btn btn-ghost btn-xs btn-icon" onclick="removeBlockConfirm(${i})" title="Delete" style="color:var(--red)">✕</button>
-    </div>`;
+function renderPreview(id){
+  const el=document.getElementById(id);
+  if(!el)return;
+  const evs=weekEvents();
+  el.innerHTML=[1,2,3,4,5,6,0].map(d=>{
+    const dayEvs=evs.filter(e=>e.dow===d).sort((a,b)=>toMins(a.start)-toMins(b.start));
+    return `<div class="day-col"><div class="day-head">${DAYS_SHORT[d]}</div><div class="day-body">${dayEvs.map(e=>`<div class="ev ev-${e.type}"><div class="ev-title">${esc(e.title)}</div><div class="ev-time">${e.start}-${e.end}</div></div>`).join('')}</div></div>`;
   }).join('');
-  renderBlockSelector();
 }
-
-function addBlock() {
-  pushUndo('block added');
-  S.blocks.push({id:'c'+Date.now(),emoji:'📌',name:'Study Block',start:'15:00',end:'16:00',days:[1,2,3,4,5],color:'#7b68ee',enabled:true});
-  renderBlocks(); renderAll(); save();
-}
-
-function dupBlock(i) {
-  pushUndo('block duplicated');
-  const b={...S.blocks[i],id:'c'+Date.now(),name:S.blocks[i].name+' (copy)',days:[...S.blocks[i].days]};
-  S.blocks.splice(i+1,0,b);
-  renderBlocks(); renderAll(); save();
-}
-
-function removeBlockConfirm(i) {
-  const removed=S.blocks[i];
-  pushUndo('block deleted',()=>{ S.blocks.splice(i,0,removed); renderBlocks(); renderAll(); save(); });
-  S.blocks.splice(i,1);
-  renderBlocks(); renderAll(); save();
-  showUndoBanner(`"${removed.name}" deleted`);
-}
-
-function toggleBlock(i) {
-  S.blocks[i].enabled=!S.blocks[i].enabled;
-  renderBlocks(); renderAll(); save();
-}
-function toggleDay(bi,di,el) {
-  const b=S.blocks[bi];
-  b.days=b.days.includes(di)?b.days.filter(d=>d!==di):[...b.days,di];
-  el.classList.toggle('on',b.days.includes(di));
-  renderAll(); save();
-}
-
-// Drag & drop reorder
-function dragStart(i) { dragSrcIdx=i; setTimeout(()=>document.querySelectorAll('.block-row')[i]?.classList.add('dragging'),0); }
-function dragOver(e,i){ e.preventDefault(); document.querySelectorAll('.block-row')[i]?.classList.add('drag-over'); }
-function dragLeave(el){ el.classList.remove('drag-over'); }
-function dragEnd()    { document.querySelectorAll('.block-row').forEach(r=>r.classList.remove('dragging','drag-over')); dragSrcIdx=null; }
-function drop(e,i)    {
-  e.preventDefault();
-  if(dragSrcIdx===null||dragSrcIdx===i) return;
-  pushUndo('reorder');
-  const [b]=S.blocks.splice(dragSrcIdx,1); S.blocks.splice(i,0,b);
-  renderBlocks(); renderAll(); save();
-}
-
-// Colour picker
-function openColorPicker(i) {
-  colorTargetIdx=i; colorSelected=S.blocks[i].color||COLORS[0];
-  document.getElementById('color-swatches').innerHTML=COLORS.map(c=>`
-    <div class="color-swatch${c===colorSelected?' selected':''}" style="background:${c}" onclick="colorSelected='${c}';document.querySelectorAll('.color-swatch').forEach(s=>s.classList.remove('selected'));this.classList.add('selected')"></div>
-  `).join('');
-  showModal('color-modal');
-}
-function applyColor() {
-  if(colorTargetIdx===null) return;
-  S.blocks[colorTargetIdx].color=colorSelected;
-  renderBlocks(); renderPreview(); renderHourGrid(); save();
-  closeModal('color-modal');
-}
-
-// ════════════════════════════════════════════════════════════════════════════
-//  CONFLICT DETECTION
-// ════════════════════════════════════════════════════════════════════════════
-function toMins(t){ const[h,m]=t.split(':').map(Number); return h*60+m; }
-
-function findConflicts() {
+function renderHourGrid(){renderPreview('hour-grid');}
+function detectLocalConflicts(){
   const conflicts=[];
-  // lec vs lec (same day, time overlap)
-  for(let i=0;i<S.lectures.length;i++){
-    for(let j=i+1;j<S.lectures.length;j++){
-      const a=S.lectures[i],b=S.lectures[j];
-      if(a.day!==b.day) continue;
-      if(toMins(a.start)<toMins(b.end)&&toMins(b.start)<toMins(a.end))
-        conflicts.push({type:'lec-lec',a:i,b:j,msg:`${a.subject} overlaps ${b.subject} on ${a.day}`});
-    }
-  }
-  // blk vs lec
-  S.blocks.forEach((b,bi)=>{
-    if(!b.enabled) return;
-    S.lectures.forEach((l,li)=>{
-      const dow=DAY_JS[l.day];
-      if(!b.days.includes(dow)) return;
-      if(toMins(b.start)<toMins(l.end)&&toMins(l.start)<toMins(b.end))
-        conflicts.push({type:'blk-lec',a:bi,b:li,msg:`"${b.name}" overlaps lecture "${l.subject}" on ${l.day}`});
-    });
+  [1,2,3,4,5,6,0].forEach(d=>{
+    const evs=weekEvents().filter(e=>e.dow===d).sort((a,b)=>toMins(a.start)-toMins(b.start));
+    for(let i=0;i<evs.length;i++)for(let j=i+1;j<evs.length;j++){if(toMins(evs[j].start)>=toMins(evs[i].end))break;if(toMins(evs[i].end)>toMins(evs[j].start))conflicts.push([evs[i],evs[j]]);}
   });
-  // blk vs blk
-  for(let i=0;i<S.blocks.length;i++){
-    for(let j=i+1;j<S.blocks.length;j++){
-      const a=S.blocks[i],b=S.blocks[j];
-      if(!a.enabled||!b.enabled) continue;
-      const shared=a.days.filter(d=>b.days.includes(d));
-      if(!shared.length) continue;
-      if(toMins(a.start)<toMins(b.end)&&toMins(b.start)<toMins(a.end))
-        conflicts.push({type:'blk-blk',a:i,b:j,msg:`"${a.name}" overlaps "${b.name}"`});
-    }
-  }
-  return conflicts;
+  const el=document.getElementById('block-conflicts');
+  if(el){el.classList.toggle('hidden',!conflicts.length);el.textContent=conflicts.length?`${conflicts.length} overlapping local block or lecture pair${conflicts.length!==1?'s':''}.`:'';}
 }
 
-function detectConflicts() {
-  const conflicts=findConflicts();
-  const card=document.getElementById('conflict-card');
-  const list=document.getElementById('conflict-list');
-  const el=document.getElementById('ds-conf');
-  if(el) el.textContent=conflicts.length;
-  if(!card||!list) return;
-  if(!conflicts.length){ card.classList.add('hidden'); return; }
-  card.classList.remove('hidden');
-  list.innerHTML=conflicts.map(c=>`
-    <div class="alert alert-warn" style="margin-bottom:6px">⚠️ ${esc(c.msg)}</div>`).join('');
-  // block conflict highlight
-  const blkConfs=conflicts.filter(c=>c.type==='blk-blk'||c.type==='blk-lec');
-  const msgEl=document.getElementById('block-conflicts');
-  if(msgEl){
-    if(blkConfs.length){ msgEl.classList.remove('hidden'); msgEl.textContent='⚠️ '+blkConfs.map(c=>c.msg).join(' · '); }
-    else msgEl.classList.add('hidden');
-  }
-}
-
-// ════════════════════════════════════════════════════════════════════════════
-//  PREVIEW WEEK GRID
-// ════════════════════════════════════════════════════════════════════════════
-function renderPreview(containerId) {
-  const grid=document.getElementById(containerId||'dash-week-grid'); if(!grid) return;
-  const today=new Date().getDay();
-  const conflicts=findConflicts();
-  grid.innerHTML=[1,2,3,4,5,6,0].map(dow=>{
-    const dayName=DAYS_FULL[dow];
-    const lecs=S.lectures.filter(l=>DAY_JS[l.day]===dow)
-      .map((l,idx)=>{
-        const orig=S.lectures.indexOf(l);
-        const isConflict=conflicts.some(c=>c.type==='lec-lec'&&(c.a===orig||c.b===orig));
-        return {cls:isConflict?'ev-conflict':'ev-lec',label:l.subject||'—',start:l.start,end:l.end};
-      });
-    const blks=S.blocks.filter(b=>b.enabled&&b.days.includes(dow))
-      .map(b=>({cls:'ev-blk',label:b.emoji+' '+b.name,start:b.start,end:b.end,color:b.color}));
-    const all=[...lecs,...blks].sort((a,b)=>a.start.localeCompare(b.start));
-    const isToday=dow===today;
-    return `<div class="day-col${isToday?' today':''}">
-      <div class="day-head${isToday?' today-head':''}">${dayName.slice(0,3)}</div>
-      <div class="day-body">
-        ${all.length?all.map(e=>`<div class="ev ${e.cls}" title="${esc(e.label)} ${e.start}–${e.end}">
-          <div class="ev-title">${esc(e.label)}</div>
-          <div class="ev-time">${e.start}–${e.end}</div>
-        </div>`).join(''):'<span style="font-size:10px;color:var(--text2);padding:4px 5px;display:block">—</span>'}
-      </div>
-    </div>`;
-  }).join('');
-  detectConflicts();
-}
-
-// ════════════════════════════════════════════════════════════════════════════
-//  HOUR GRID
-// ════════════════════════════════════════════════════════════════════════════
-function renderHourGrid() {
-  const grid=document.getElementById('hour-grid'); if(!grid) return;
-  const fromH=parseInt(document.getElementById('tt-from')?.value||7);
-  const toH  =parseInt(document.getElementById('tt-to')?.value||23);
-  const hours=Array.from({length:toH-fromH},(_,i)=>fromH+i);
-  const ROW_H=36; // px per hour
-  const today=new Date().getDay();
-  const days=[1,2,3,4,5,6,0];
-  const conflicts=findConflicts();
-
-  // header
-  let html=`<div class="tt-header">
-    <div></div>
-    ${days.map(d=>`<div class="tt-day-label${d===today?' today-col':''}">${DAYS_FULL[d].slice(0,3)}</div>`).join('')}
-  </div>`;
-
-  // body
-  html+=`<div class="tt-body">`;
-  hours.forEach(h=>{
-    html+=`<div class="tt-hour">${h%12||12}${h<12?'a':'p'}</div>`;
-    days.forEach(dow=>{
-      const isToday=dow===today;
-      html+=`<div class="tt-cell${isToday?' today-col':''}" style="position:relative">`;
-      // render lectures in this hour slot
-      S.lectures.filter(l=>DAY_JS[l.day]===dow).forEach((l,idx)=>{
-        const orig=S.lectures.indexOf(l);
-        const sM=toMins(l.start), eM=toMins(l.end);
-        const slotStart=h*60, slotEnd=(h+1)*60;
-        if(sM>=slotEnd||eM<=slotStart) return;
-        const top   =Math.max(0,(sM-slotStart)/60*ROW_H);
-        const height=Math.min(ROW_H,((Math.min(eM,slotEnd)-Math.max(sM,slotStart))/60)*ROW_H);
-        const isConf=conflicts.some(c=>c.type==='lec-lec'&&(c.a===orig||c.b===orig));
-        html+=`<div class="tt-ev ${isConf?'tt-conflict':'tt-lec'}" style="top:${top}px;height:${height}px" title="${esc(l.subject)} ${l.start}–${l.end}">
-          <div>${esc(l.subject)}</div>
-        </div>`;
-      });
-      // render blocks
-      S.blocks.filter(b=>b.enabled&&b.days.includes(dow)).forEach(b=>{
-        const sM=toMins(b.start), eM=toMins(b.end);
-        const slotStart=h*60, slotEnd=(h+1)*60;
-        if(sM>=slotEnd||eM<=slotStart) return;
-        const top   =Math.max(0,(sM-slotStart)/60*ROW_H);
-        const height=Math.min(ROW_H,((Math.min(eM,slotEnd)-Math.max(sM,slotStart))/60)*ROW_H);
-        const isConf=conflicts.some(c=>(c.type==='blk-blk'||c.type==='blk-lec')&&c.a===S.blocks.indexOf(b));
-        html+=`<div class="tt-ev ${isConf?'tt-conflict':'tt-blk'}" style="top:${top}px;height:${height}px;background:${b.color||'#34d399'}33;border-color:${b.color||'#34d399'}88;color:${b.color||'#34d399'}" title="${esc(b.emoji+' '+b.name)} ${b.start}–${b.end}">
-          <div>${esc(b.emoji+' '+b.name)}</div>
-        </div>`;
-      });
-      html+=`</div>`;
-    });
-  });
-  html+=`</div>`;
-  grid.innerHTML=html;
-
-  // free time
-  let totalMins=0, eventMins=0;
-  const workMins=(toH-fromH)*60;
-  [1,2,3,4,5].forEach(dow=>{
-    totalMins+=workMins;
-    const evs=[
-      ...S.lectures.filter(l=>DAY_JS[l.day]===dow).map(l=>({s:toMins(l.start),e:toMins(l.end)})),
-      ...S.blocks.filter(b=>b.enabled&&b.days.includes(dow)).map(b=>({s:toMins(b.start),e:toMins(b.end)}))
-    ];
-    const clamp=t=>Math.max(fromH*60,Math.min(toH*60,t));
-    evs.forEach(ev=>eventMins+=Math.max(0,clamp(ev.e)-clamp(ev.s)));
-  });
-  const freeMins=totalMins-eventMins;
-  const freeEl=document.getElementById('free-time-label');
-  if(freeEl) freeEl.textContent=`~${Math.round(freeMins/60*10)/10}h free time per weekday (shown window) · ~${Math.round(eventMins/60*10)/10}h scheduled`;
-}
-
-// ════════════════════════════════════════════════════════════════════════════
-//  DASHBOARD
-// ════════════════════════════════════════════════════════════════════════════
-function renderDashboard() {
-  renderPreview('dash-week-grid');
-  // stats
-  const lecPerWeek=S.lectures.length;
-  const lecMins=S.lectures.reduce((s,l)=>s+toMins(l.end)-toMins(l.start),0);
-  const blkPerDay=Math.round(S.blocks.filter(b=>b.enabled).reduce((s,b)=>s+b.days.length/7,0)*10)/10;
-  const studyMinsPerDay=S.blocks.filter(b=>b.enabled).reduce((s,b)=>s+(toMins(b.end)-toMins(b.start))*b.days.length/7,0);
-  const el=id=>document.getElementById(id);
-  if(el('ds-lec'))  el('ds-lec').textContent=lecPerWeek;
-  if(el('ds-lhrs')) el('ds-lhrs').textContent=Math.round(lecMins/60*10)/10+'h';
-  if(el('ds-blk'))  el('ds-blk').textContent=blkPerDay;
-  if(el('ds-shrs')) el('ds-shrs').textContent=Math.round(studyMinsPerDay/60*10)/10+'h';
-}
-
-// ════════════════════════════════════════════════════════════════════════════
-//  ANALYTICS
-// ════════════════════════════════════════════════════════════════════════════
-function renderAnalytics() {
-  const lecMins=S.lectures.reduce((s,l)=>s+toMins(l.end)-toMins(l.start),0);
-  const studyMinsPerDay=S.blocks.filter(b=>b.enabled).reduce((s,b)=>s+(toMins(b.end)-toMins(b.start))*b.days.length/7,0);
-  const totalEvPerWeek=S.lectures.length+S.blocks.filter(b=>b.enabled).reduce((s,b)=>s+b.days.length,0);
-  const freeHrs=Math.max(0,(24-(lecMins/60/5)-(studyMinsPerDay/60)));
-
-  document.getElementById('an-total-lec-hrs').textContent=Math.round(lecMins/60*10)/10+'h';
-  document.getElementById('an-total-study-hrs').textContent=Math.round(studyMinsPerDay/60*10)/10+'h';
-  document.getElementById('an-total-events').textContent=totalEvPerWeek;
-  document.getElementById('an-free-hrs').textContent=Math.round(freeHrs*10)/10+'h';
-
-  // Bar chart
-  const days=[1,2,3,4,5,6,0];
-  const dayData=days.map(dow=>{
-    const lm=S.lectures.filter(l=>DAY_JS[l.day]===dow).reduce((s,l)=>s+toMins(l.end)-toMins(l.start),0);
-    const bm=S.blocks.filter(b=>b.enabled&&b.days.includes(dow)).reduce((s,b)=>s+toMins(b.end)-toMins(b.start),0);
-    return{lm,bm,total:lm+bm,name:DAYS_FULL[dow].slice(0,3)};
-  });
-  const maxMins=Math.max(...dayData.map(d=>d.total),1);
-  const chart=document.getElementById('daily-bar-chart');
-  chart.innerHTML=dayData.map(d=>`
-    <div class="bar-wrap">
-      <div class="bar-val">${d.total?Math.round(d.total/60*10)/10+'h':''}</div>
-      <div style="width:100%;display:flex;flex-direction:column-reverse;height:${80*d.total/maxMins}px;border-radius:3px 3px 0 0;overflow:hidden">
-        <div style="height:${d.lm/(d.total||1)*100}%;background:rgba(123,104,238,.4);border-top:1px solid rgba(123,104,238,.5)"></div>
-        <div style="height:${d.bm/(d.total||1)*100}%;background:rgba(52,211,153,.35);border-top:1px solid rgba(52,211,153,.5)"></div>
-      </div>
-      <div class="bar-label">${d.name}</div>
-    </div>`).join('');
-
-  // Lecture breakdown
-  const lecBySubj={};
-  S.lectures.forEach(l=>{ lecBySubj[l.subject]=(lecBySubj[l.subject]||0)+(toMins(l.end)-toMins(l.start)); });
-  const maxLec=Math.max(...Object.values(lecBySubj),1);
-  document.getElementById('lec-breakdown').innerHTML=Object.entries(lecBySubj)
-    .sort((a,b)=>b[1]-a[1])
-    .map(([s,m])=>`<div style="display:flex;align-items:center;gap:8px;font-size:12px">
-      <span style="width:110px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(s)}</span>
-      <div style="flex:1;height:8px;border-radius:4px;background:var(--surface2);overflow:hidden">
-        <div style="height:100%;width:${m/maxLec*100}%;background:var(--accent);border-radius:4px"></div>
-      </div>
-      <span style="width:35px;text-align:right;color:var(--text2)">${Math.round(m/60*10)/10}h</span>
-    </div>`).join('');
-
-  // Block breakdown
-  const maxBlk=Math.max(...S.blocks.map(b=>b.enabled?(toMins(b.end)-toMins(b.start))*b.days.length:0),1);
-  document.getElementById('blk-breakdown').innerHTML=S.blocks.filter(b=>b.enabled)
-    .sort((a,b)=>((toMins(b.end)-toMins(b.start))*b.days.length)-((toMins(a.end)-toMins(a.start))*a.days.length))
-    .map(b=>{ const m=(toMins(b.end)-toMins(b.start))*b.days.length; return `<div style="display:flex;align-items:center;gap:8px;font-size:12px">
-      <span style="width:130px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(b.emoji+' '+b.name)}</span>
-      <div style="flex:1;height:8px;border-radius:4px;background:var(--surface2);overflow:hidden">
-        <div style="height:100%;width:${m/maxBlk*100}%;background:${b.color||'#34d399'};border-radius:4px"></div>
-      </div>
-      <span style="width:35px;text-align:right;color:var(--text2)">${Math.round(m/60*10)/10}h</span>
-    </div>`}).join('');
-}
-
-// ════════════════════════════════════════════════════════════════════════════
-//  EXAMS / COUNTDOWNS
-// ════════════════════════════════════════════════════════════════════════════
-function addExam() {
-  document.getElementById('exam-name').value='';
-  document.getElementById('exam-date').value='';
-  document.getElementById('exam-note').value='';
-  document.getElementById('exam-modal-title').textContent='Add exam';
-  showModal('exam-modal');
-  window._editExamIdx=null;
-}
-function saveExam() {
+function addExam(){document.getElementById('exam-name').value='';document.getElementById('exam-date').value='';document.getElementById('exam-note').value='';showModal('exam-modal');}
+function saveExam(){
   const name=document.getElementById('exam-name').value.trim();
   const date=document.getElementById('exam-date').value;
-  if(!name||!date){ toast('Name and date required','error'); return; }
-  const exam={name,date,note:document.getElementById('exam-note').value.trim()};
-  if(window._editExamIdx!=null) S.exams[window._editExamIdx]=exam;
-  else S.exams.push(exam);
-  S.exams.sort((a,b)=>a.date.localeCompare(b.date));
-  renderCountdowns(); save();
+  const note=document.getElementById('exam-note').value.trim();
+  if(!name||!date){toast('Add an exam name and date','error');return;}
+  S.exams.push({name,date,note});
   closeModal('exam-modal');
-}
-function renderCountdowns() {
-  const grid=document.getElementById('countdown-grid'); if(!grid) return;
-  const today=new Date(); today.setHours(0,0,0,0);
-  const upcoming=S.exams.filter(e=>new Date(e.date)>=today);
-  document.getElementById('no-exams').classList.toggle('hidden',upcoming.length>0);
-  if(!upcoming.length){ grid.innerHTML=''; return; }
-  grid.innerHTML=upcoming.map((e,i)=>{
-    const d=new Date(e.date); const diff=Math.round((d-today)/86400000);
-    return `<div class="countdown-card" style="border-color:${diff<=7?'rgba(248,113,113,.3)':diff<=30?'rgba(251,191,36,.3)':'var(--border)'}">
-      <div class="countdown-name">${esc(e.name)}</div>
-      <div class="countdown-days ${diff<=7?'countdown-soon':diff<=30?'':''countdown-ok"}">${diff}</div>
-      <div class="countdown-label">day${diff!==1?'s':''} left · ${new Date(e.date).toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</div>
-      ${e.note?`<div style="font-size:11px;color:var(--text2);margin-top:4px">${esc(e.note)}</div>`:''}
-      <div style="margin-top:.5rem;display:flex;gap:6px;justify-content:center">
-        <button class="btn btn-ghost btn-xs" onclick="editExam(${i})">Edit</button>
-        <button class="btn btn-ghost btn-xs" style="color:var(--red)" onclick="deleteExam(${i})">Delete</button>
-      </div>
-    </div>`;
-  }).join('');
-}
-function editExam(i) {
-  window._editExamIdx=i;
-  const e=S.exams[i];
-  document.getElementById('exam-name').value=e.name;
-  document.getElementById('exam-date').value=e.date;
-  document.getElementById('exam-note').value=e.note||'';
-  document.getElementById('exam-modal-title').textContent='Edit exam';
-  showModal('exam-modal');
-}
-function deleteExam(i) {
-  S.exams.splice(i,1); renderCountdowns(); save();
-  toast('Exam removed');
-}
-
-// ════════════════════════════════════════════════════════════════════════════
-//  BLOCK SELECTOR (calendar page)
-// ════════════════════════════════════════════════════════════════════════════
-function renderBlockSelector() {
-  const el=document.getElementById('block-selector'); if(!el) return;
-  el.innerHTML=S.blocks.map((b,i)=>{
-    const on=S.syncedBlocks===null||S.syncedBlocks.includes(i);
-    return `<label style="font-size:12px;display:flex;align-items:center;gap:5px;cursor:pointer">
-      <input type="checkbox" ${on?'checked':''} onchange="toggleSyncBlock(${i},this.checked)" data-bi="${i}">
-      <span style="width:10px;height:10px;border-radius:50%;background:${b.color||'#34d399'};display:inline-block"></span>
-      ${esc(b.emoji+' '+b.name)}
-    </label>`;
-  }).join('');
-}
-function toggleSyncBlock(i,checked) {
-  if(S.syncedBlocks===null) S.syncedBlocks=[...S.blocks.map((_,j)=>j)];
-  if(checked) { if(!S.syncedBlocks.includes(i)) S.syncedBlocks.push(i); }
-  else S.syncedBlocks=S.syncedBlocks.filter(x=>x!==i);
-  // if all checked, set back to null (all)
-  if(S.syncedBlocks?.length===S.blocks.length) S.syncedBlocks=null;
+  renderCountdowns();
   save();
 }
-
-// ════════════════════════════════════════════════════════════════════════════
-//  RETRIEVE FROM GOOGLE CALENDAR
-// ════════════════════════════════════════════════════════════════════════════
-function setRetRange(n) {
-  const mon=getThisMonday();
-  document.getElementById('ret-from').value=toISO(mon);
-  const end=new Date(mon); end.setDate(mon.getDate()+n*7-1);
-  document.getElementById('ret-to').value=toISO(end);
+function renderCountdowns(){
+  const grid=document.getElementById('countdown-grid'),empty=document.getElementById('no-exams');
+  if(!grid)return;
+  const today=new Date();today.setHours(0,0,0,0);
+  const exams=S.exams.filter(e=>new Date(e.date)>=today).sort((a,b)=>new Date(a.date)-new Date(b.date));
+  empty?.classList.toggle('hidden',exams.length);
+  grid.innerHTML=exams.map((e,i)=>{
+    const d=Math.ceil((new Date(e.date)-today)/86400000);
+    return `<div class="stat-box"><div class="stat-num">${d}</div><div class="stat-label">${esc(e.name)}</div><div style="font-size:11px;color:var(--text2)">${esc(e.note||e.date)}</div><button class="btn btn-red btn-sm" style="margin-top:8px" onclick="S.exams.splice(${i},1);renderCountdowns();save()">Delete</button></div>`;
+  }).join('');
+}
+function renderAnalytics(){
+  const lecMins=S.lectures.reduce((s,l)=>s+Math.max(0,toMins(l.end)-toMins(l.start)),0);
+  const studyMins=S.blocks.filter(b=>b.enabled).reduce((s,b)=>s+Math.max(0,toMins(b.end)-toMins(b.start))*b.days.length/7,0);
+  setText('an-total-lec-hrs',Math.round(lecMins/60*10)/10+'h');
+  setText('an-total-study-hrs',Math.round(studyMins/60*10)/10+'h');
+  setText('an-total-events',S.lectures.length+S.blocks.filter(b=>b.enabled).reduce((s,b)=>s+b.days.length,0));
+  setText('an-free-hrs',Math.max(0,Math.round((24-studyMins/60-lecMins/60/5)*10)/10)+'h');
+  const bySub={};S.lectures.forEach(l=>bySub[l.subject]=(bySub[l.subject]||0)+Math.max(0,toMins(l.end)-toMins(l.start)));
+  document.getElementById('lec-breakdown').innerHTML=Object.entries(bySub).map(([k,v])=>`<div class="block-row"><strong>${esc(k||'(untitled)')}</strong><span>${Math.round(v/60*10)/10}h</span></div>`).join('')||'<div class="review-empty">No lectures yet.</div>';
+  document.getElementById('blk-breakdown').innerHTML=S.blocks.map(b=>`<div class="block-row"><strong>${esc(b.name)}</strong><span>${b.days.length} days</span></div>`).join('');
+}
+function exportJSON(){
+  const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='studysync-data.json';a.click();URL.revokeObjectURL(a.href);
+}
+function importJSON(e){
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=()=>{try{S=JSON.parse(r.result);renderAll();toast('Imported data','success');}catch{toast('Invalid JSON','error');}};
+  r.readAsText(f);
+}
+function clearAllData(){
+  S={lectures:[],blocks:[],exams:[],tz:'Asia/Kolkata',theme:S.theme,calTarget:'studysync',syncedBlocks:null};
+  localStorage.removeItem(DATA_KEY);localStorage.removeItem(FP_KEY);renderAll();toast('Local data cleared','success');
+}
+function resetSyncHistory(){localStorage.removeItem(FP_KEY);updateSyncStatusBar();updateFpsLabel();toast('Sync history reset','success');}
+function updateFpsLabel(){setText('fps-count-label',`${loadFPs().size} events tracked`);}
+function updateSyncStatusBar(){
+  const el=document.getElementById('sync-status-bar');if(!el)return;
+  const n=loadFPs().size;
+  el.style.display=n?'block':'none';
+  el.textContent=`${n} events tracked. Only new events will be added.`;
+}
+function buildEventList(s,e){
+  const evs=[];
+  for(let d=new Date(s);d<=e;d.setDate(d.getDate()+1)){
+    const dow=d.getDay(),ds=toISO(new Date(d));
+    S.lectures.filter(l=>l.subject&&DAY_JS[l.day]===dow).forEach(l=>evs.push({
+      _t:'lec',
+      summary:'Lecture: '+l.subject,
+      location:l.location||'',
+      start:{dateTime:ds+'T'+l.start+':00',timeZone:S.tz},
+      end:{dateTime:ds+'T'+l.end+':00',timeZone:S.tz},
+      colorId:'9'
+    }));
+    const blocks=S.syncedBlocks===null?S.blocks:S.blocks.filter((_,i)=>S.syncedBlocks.includes(i));
+    blocks.filter(b=>b.enabled&&b.days.includes(dow)).forEach(b=>evs.push({
+      _t:'blk',
+      summary:'Study: '+b.name,
+      start:{dateTime:ds+'T'+b.start+':00',timeZone:S.tz},
+      end:{dateTime:ds+'T'+b.end+':00',timeZone:S.tz},
+      colorId:'2'
+    }));
+  }
+  return evs;
+}
+function setWeeks(n){
+  const s=getThisMonday(),e=new Date(s);
+  e.setDate(s.getDate()+n*7-1);
+  document.getElementById('sync-start').value=toISO(s);
+  document.getElementById('sync-end').value=toISO(e);
+}
+async function previewSync(){
+  const s=new Date(document.getElementById('sync-start').value);
+  const e=new Date(document.getElementById('sync-end').value);
+  if(isNaN(s)||isNaN(e)||e<s){toast('Fix the date range','error');return;}
+  const all=buildEventList(s,e);
+  const synced=loadFPs();
+  const newEvs=all.filter(ev=>!synced.has(fp(ev)));
+  setText('preview-summary',`${newEvs.length} new events to create · ${all.length-newEvs.length} already tracked · ${daysBetween(s,e)} days`);
+  const grouped={};
+  newEvs.forEach(ev=>{const d=ev.start.dateTime.slice(0,10);(grouped[d]=grouped[d]||[]).push(ev);});
+  document.getElementById('preview-list').innerHTML=Object.keys(grouped).sort().map(d=>`
+    <div style="margin-bottom:12px">
+      <div style="font-size:12px;color:var(--text2);font-weight:800;margin-bottom:5px">${d}</div>
+      ${grouped[d].map(ev=>`<div class="event-mini"><strong>${esc(ev.summary)}</strong><span>${ev.start.dateTime.slice(11,16)}-${ev.end.dateTime.slice(11,16)}</span></div>`).join('')}
+    </div>`).join('')||'<div class="review-empty">No new events.</div>';
+  showModal('preview-modal');
+}
+async function runSync(confirmed=false){
+  if(!accessToken){toast('Connect Google Calendar first','error');return;}
+  const s=new Date(document.getElementById('sync-start').value);
+  const e=new Date(document.getElementById('sync-end').value);
+  if(isNaN(s)||isNaN(e)||e<s){toast('Fix the date range','error');return;}
+  if(!confirmed){await previewSync();return;}
+  const all=buildEventList(s,e),synced=loadFPs();
+  const newEvs=all.filter(ev=>!synced.has(fp(ev)));
+  await doSyncEvents(s,e,newEvs,all.length-newEvs.length);
+}
+async function doSyncEvents(s,e,newEvs,skipped){
+  const btn=document.getElementById('sync-btn'),spin=document.getElementById('sync-spin'),wrap=document.getElementById('sync-progress-wrap'),bar=document.getElementById('sync-progress-bar'),log=document.getElementById('sync-log'),res=document.getElementById('sync-result');
+  btn.disabled=true;spin.classList.remove('hidden');wrap.style.display='block';log.classList.remove('hidden');res.classList.add('hidden');log.innerHTML='';bar.style.width='0%';
+  const synced=loadFPs();
+  let done=0,failed=0;
+  for(const ev of newEvs){
+    try{
+      const body={summary:ev.summary,start:ev.start,end:ev.end,colorId:ev.colorId};
+      if(ev.location)body.location=ev.location;
+      await gfetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(getCalId())}/events`,{method:'POST',body:JSON.stringify(body)});
+      synced.add(fp(ev));done++;
+    }catch(err){failed++;log.innerHTML+=`<div style="color:var(--red)">${esc(ev.summary)}: ${esc(err.message)}</div>`;}
+    bar.style.width=Math.round((done+failed)/Math.max(1,newEvs.length)*100)+'%';
+    await sleep(70);
+  }
+  saveFPs(synced);
+  spin.classList.add('hidden');btn.disabled=false;res.classList.remove('hidden');
+  setText('sync-result-msg',`Synced ${done} event${done!==1?'s':''}${failed?`, ${failed} failed`:''}.`);
+  setText('sr-lec',newEvs.filter(e=>e._t==='lec').length);
+  setText('sr-blk',newEvs.filter(e=>e._t==='blk').length);
+  setText('sr-skip',skipped);
+  setText('sr-days',daysBetween(s,e));
+  updateSyncStatusBar();updateFpsLabel();
+  await refreshCalendarWindow(false);
+  if(reviewIssueCount())showPage('review');
+  toast(`Synced ${done} events`,'success');
 }
 
-async function fetchCalEvents() {
-  if(!accessToken){ toast('Not connected','error'); return; }
-  const from=document.getElementById('ret-from').value;
-  const to  =document.getElementById('ret-to').value;
-  if(!from||!to||from>to){ toast('Fix date range','error'); return; }
-  const btn=document.getElementById('fetch-btn');
+async function doTwoWaySync(){
+  if(!accessToken){toast('Not connected','error');return;}
+  const spin=document.getElementById('sync2w-spin');
+  spin.classList.remove('hidden');
+  try{
+    await refreshCalendarWindow(true);
+    const lecs=retEvents.filter(e=>classifyEv(e)==='lec');
+    const seen=new Set(),parsed=[];
+    lecs.forEach(ev=>{
+      const d=new Date(ev.start.dateTime),day=DAYS_FULL[d.getDay()],st=ev.start.dateTime.slice(11,16),en=ev.end.dateTime.slice(11,16);
+      const subj=(ev.summary||'').replace(/^Lecture:\s*/,'').trim();
+      const key=[day,subj,st,en,ev.location||''].join('|').toLowerCase();
+      if(!seen.has(key)){seen.add(key);parsed.push({subject:subj,day,start:st,end:en,location:ev.location||''});}
+    });
+    if(parsed.length){S.lectures=parsed;renderAll();toast(`Loaded ${parsed.length} lectures`,'success');}
+    if(reviewIssueCount())showPage('review');
+    else toast('Two-way sync complete. Calendar is healthy.','success');
+  }catch(e){toast('Two-way sync failed: '+e.message,'error');}
+  finally{spin.classList.add('hidden');}
+}
+
+function setRetRange(w){
+  const s=getThisMonday(),e=new Date(s);
+  e.setDate(s.getDate()+w*7-1);
+  document.getElementById('ret-from').value=toISO(s);
+  document.getElementById('ret-to').value=toISO(e);
+}
+async function fetchCalEvents(){
+  if(!accessToken){toast('Connect Google Calendar first','error');return;}
+  const s=new Date(document.getElementById('ret-from').value),e=new Date(document.getElementById('ret-to').value);
+  if(isNaN(s)||isNaN(e)||e<s){toast('Fix date range','error');return;}
   const spin=document.getElementById('fetch-spin');
-  btn.disabled=true; spin.classList.remove('hidden');
-  try {
-    const calId=getCalId();
-    const tMin=encodeURIComponent(from+'T00:00:00+05:30');
-    const tMax=encodeURIComponent(to  +'T23:59:59+05:30');
-    const data=await gfetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calId)}/events?timeMin=${tMin}&timeMax=${tMax}&singleEvents=true&orderBy=startTime&maxResults=2500`);
+  spin.classList.remove('hidden');
+  try{
+    const data=await gfetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(getCalId())}/events?timeMin=${encodeURIComponent(s.toISOString())}&timeMax=${encodeURIComponent(e.toISOString())}&singleEvents=true&orderBy=startTime&maxResults=2500`);
     retEvents=(data.items||[]).filter(e=>e.start?.dateTime);
-    if(!retEvents.length){ toast('No timed events in that range','info'); document.getElementById('ret-results').classList.add('hidden'); return; }
-    const start=new Date(from);
-    retWeekStart=new Date(start); retWeekStart.setDate(start.getDate()-((start.getDay()+6)%7));
-    buildRetUI(from,to);
-    document.getElementById('ret-results').classList.remove('hidden');
+    buildRetUI();
+    updateReviewState(retEvents);
     toast(`Fetched ${retEvents.length} events`,'success');
-  } catch(e){ toast('Fetch failed: '+e.message,'error'); }
-  finally{ btn.disabled=false; spin.classList.add('hidden'); }
+  }catch(err){toast('Fetch failed: '+err.message,'error');}
+  finally{spin.classList.add('hidden');}
 }
-
-function classifyEv(ev) {
-  const s=ev.summary||'';
-  if(s.startsWith('📚')) return 'lec';
-  if(/^[\u{1F4D0}\u{1F501}\u{1F4CA}\u{1F5E3}\u{1F4D6}\u{1F3C3}\u{1F4DD}\u{1F9D8}\u{1F4CC}\u23F0\u{1F3AF}\u270F\uFE0F\u{1F4AA}\u{1F9E0}\u{1F4D2}\u{1F58A}\uFE0F\u{1F50D}]/u.test(s)) return 'blk';
-  return 'other';
-}
-
-function buildRetUI(from,to) {
-  const lecs=retEvents.filter(e=>classifyEv(e)==='lec');
-  const blks=retEvents.filter(e=>classifyEv(e)==='blk');
-  const others=retEvents.filter(e=>classifyEv(e)==='other');
-  document.getElementById('ret-chips').innerHTML=`
-    <span class="chip chip-accent">📚 ${lecs.length} lectures</span>
-    <span class="chip chip-green">📊 ${blks.length} study blocks</span>
-    <span class="chip chip-blue">📅 ${others.length} other</span>
-    <span class="chip" style="background:var(--surface2)">🗓 ${daysBetween(new Date(from),new Date(to))} days</span>`;
-
-  document.getElementById('ret-lec-list').innerHTML=buildList(lecs,'lec');
-  document.getElementById('ret-blk-list').innerHTML=buildList(blks,'blk');
-  document.getElementById('ret-all-list').innerHTML=buildList(retEvents,null);
-
-  // build deduped lectures
-  const seen=new Set(); retLectures=[];
-  lecs.forEach(ev=>{
-    const dow=new Date(ev.start.dateTime).getDay();
-    const dayName=DAYS_FULL[dow];
-    const st=ev.start.dateTime.slice(11,16), en=ev.end.dateTime.slice(11,16);
-    const subj=(ev.summary||'').replace(/^📚\s*/,'').trim();
-    const loc=ev.location||'';
-    const key=`${dayName}|${subj}|${st}|${en}`;
-    if(!seen.has(key)){ seen.add(key); retLectures.push({subject:subj,day:dayName,start:st,end:en,location:loc}); }
-  });
-
-  const btn=document.getElementById('load-lec-btn');
-  btn.disabled=retLectures.length===0;
-  btn.textContent=retLectures.length?`Load ${retLectures.length} lectures into editor`:'No lectures to load';
-
+function buildRetUI(){
+  document.getElementById('ret-results').classList.toggle('hidden',!retEvents.length);
+  const lecs=retEvents.filter(e=>classifyEv(e)==='lec'),blks=retEvents.filter(e=>classifyEv(e)==='blk'),others=retEvents.filter(e=>classifyEv(e)==='other');
+  document.getElementById('ret-chips').innerHTML=`<span class="chip chip-accent">${retEvents.length} events</span><span class="chip chip-blue">${lecs.length} lectures</span><span class="chip chip-green">${blks.length} study blocks</span><span class="chip">${others.length} other</span>`;
+  document.getElementById('load-lec-btn').disabled=!lecs.length;
+  retLectures=uniqueLectures(lecs);
+  retWeekStart=getThisMonday();
   renderRetWeek();
+  document.getElementById('ret-lec-list').innerHTML=buildEventListHTML(lecs);
+  document.getElementById('ret-blk-list').innerHTML=buildEventListHTML(blks);
+  document.getElementById('ret-all-list').innerHTML=buildEventListHTML(retEvents);
   retTab(currentRetTab);
 }
-
-function buildList(evs,forceCls) {
-  if(!evs.length) return '<p style="font-size:13px;color:var(--text2);padding:8px 0">No events.</p>';
-  const byDate={};
-  evs.forEach(ev=>{ const d=ev.start.dateTime.slice(0,10); (byDate[d]=byDate[d]||[]).push(ev); });
-  return Object.keys(byDate).sort().map(date=>{
-    const label=new Date(date+'T12:00:00').toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'short'});
-    return `<div style="margin-bottom:1rem">
-      <div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px">${label}</div>
-      ${byDate[date].sort((a,b)=>a.start.dateTime.localeCompare(b.start.dateTime)).map(ev=>{
-        const cls=forceCls||classifyEv(ev);
-        const t=ev.start.dateTime.slice(11,16)+'–'+ev.end.dateTime.slice(11,16);
-        return `<div class="ev-list-item is-${cls}" style="display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:var(--r-xs);margin-bottom:4px;background:${cls==='lec'?'rgba(123,104,238,.08)':cls==='blk'?'rgba(52,211,153,.07)':'var(--surface2)'};border-left:3px solid ${cls==='lec'?'var(--accent)':cls==='blk'?'var(--green)':'var(--border2)'}">
-          <span style="flex:1;font-size:13px;font-weight:500">${esc(ev.summary||'(no title)')}</span>
-          <span style="font-size:12px;color:var(--text2);white-space:nowrap">${t}${ev.location?' · '+esc(ev.location):''}</span>
-        </div>`;
-      }).join('')}
-    </div>`;
+function buildEventListHTML(evs){
+  return evs.map(ev=>`<div class="event-mini" style="margin-bottom:7px"><strong>${esc(ev.summary||'(no title)')}</strong><span>${formatEventDate(ev)} · ${formatEventTime(ev)}${ev.location?' · '+esc(ev.location):''}</span></div>`).join('')||'<div class="review-empty">No events.</div>';
+}
+function renderRetWeek(){
+  const el=document.getElementById('ret-week-grid');if(!el)return;
+  const s=new Date(retWeekStart);
+  setText('ret-week-label',`${toISO(s)} week`);
+  el.innerHTML=[0,1,2,3,4,5,6].map(i=>{
+    const d=new Date(s);d.setDate(s.getDate()+i);const ds=toISO(d);
+    const dayEvs=retEvents.filter(ev=>ev.start.dateTime.startsWith(ds)).sort((a,b)=>eventStart(a)-eventStart(b));
+    return `<div class="day-col"><div class="day-head">${DAYS_SHORT[d.getDay()]}</div><div class="day-body">${dayEvs.map(ev=>`<div class="ev ev-${classifyEv(ev)==='lec'?'lec':classifyEv(ev)==='blk'?'blk':'other'}"><div class="ev-title">${esc(ev.summary)}</div><div class="ev-time">${ev.start.dateTime.slice(11,16)}</div></div>`).join('')}</div></div>`;
   }).join('');
 }
-
-function renderRetWeek() {
-  if(!retWeekStart) return;
-  const sun=new Date(retWeekStart); sun.setDate(retWeekStart.getDate()+6);
-  document.getElementById('ret-week-label').textContent=
-    retWeekStart.toLocaleDateString('en-GB',{day:'numeric',month:'short'})+' – '+
-    sun.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
-  const grid=document.getElementById('ret-week-grid');
-  grid.innerHTML=[1,2,3,4,5,6,0].map(dow=>{
-    const dayDate=new Date(retWeekStart); dayDate.setDate(retWeekStart.getDate()+((dow+6)%7));
-    const ds=toISO(dayDate);
-    const dayEvs=retEvents.filter(ev=>ev.start.dateTime.startsWith(ds))
-      .sort((a,b)=>a.start.dateTime.localeCompare(b.start.dateTime));
-    return `<div class="day-col">
-      <div class="day-head">${DAYS_FULL[dow].slice(0,3)}</div>
-      <div class="day-body">
-        ${dayEvs.length?dayEvs.map(ev=>{
-          const cls=classifyEv(ev);
-          const t=ev.start.dateTime.slice(11,16)+'–'+ev.end.dateTime.slice(11,16);
-          return `<div class="ev ev-${cls}" title="${esc(ev.summary||'')} ${t}">
-            <div class="ev-title">${esc(ev.summary||'(no title)')}</div>
-            <div class="ev-time">${t}</div>
-          </div>`;
-        }).join(''):'<span style="font-size:10px;color:var(--text2);padding:4px 5px;display:block">—</span>'}
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function retWeekNav(dir) {
-  if(!retWeekStart) return;
-  retWeekStart=new Date(retWeekStart); retWeekStart.setDate(retWeekStart.getDate()+dir*7);
-  renderRetWeek();
-}
-
-function retTab(tab) {
+function retWeekNav(dir){retWeekStart.setDate(retWeekStart.getDate()+dir*7);renderRetWeek();}
+function retTab(tab){
   currentRetTab=tab;
   ['week','lec','blk','all'].forEach(t=>{
     document.getElementById('rtab-'+t)?.classList.toggle('active',t===tab);
     document.getElementById('ret-'+t+'-view')?.classList.toggle('hidden',t!==tab);
   });
 }
-
-function loadFromCalendar() {
-  if(!retLectures.length){ toast('No lectures to load','error'); return; }
-  if(!confirm(`Replace lecture table with ${retLectures.length} unique lectures from Google Calendar?`)) return;
-  pushUndo('load from calendar');
-  S.lectures=retLectures.map(l=>({...l}));
-  rebuildLecTable(); updateLecCount(); renderAll(); save();
-  toast(`Loaded ${S.lectures.length} lectures`,'success');
-  showPage('timetable');
-}
-
-// ════════════════════════════════════════════════════════════════════════════
-//  DUPLICATE DETECTION
-// ════════════════════════════════════════════════════════════════════════════
-function checkDuplicates() {
-  if(!retEvents.length){ toast('Fetch calendar events first','error'); return; }
-  const groups={};
-  retEvents.forEach(ev=>{
-    if(!ev.start?.dateTime) return;
-    // Compare by title+date+startTime+endTime+location
-    const key=(ev.summary||'')+'|'+ev.start.dateTime.slice(0,16)+'|'+ev.end.dateTime.slice(11,16)+'|'+(ev.location||'');
-    (groups[key]=groups[key]||[]).push(ev);
+function uniqueLectures(evs){
+  const seen=new Set(),out=[];
+  evs.forEach(ev=>{
+    const d=new Date(ev.start.dateTime),day=DAYS_FULL[d.getDay()],start=ev.start.dateTime.slice(11,16),end=ev.end.dateTime.slice(11,16),subject=(ev.summary||'').replace(/^Lecture:\s*/,'').trim(),location=ev.location||'';
+    const key=[day,subject,start,end,location].join('|').toLowerCase();
+    if(!seen.has(key)){seen.add(key);out.push({day,subject,start,end,location});}
   });
-  const dups=Object.values(groups).filter(g=>g.length>1);
-  const modal=document.getElementById('dup-modal');
-  const intro=document.getElementById('dup-intro');
-  const list =document.getElementById('dup-list');
-  const doneEl=document.getElementById('dup-done-msg');
-  const delBtn=document.getElementById('del-dups-btn');
-  doneEl.classList.add('hidden');
-  document.getElementById('dup-prog-wrap').style.display='none';
-
-  if(!dups.length){
-    intro.textContent='✅ No duplicate events found. Calendar looks clean!';
-    list.innerHTML=''; delBtn.disabled=true;
-    document.getElementById('skip-dups-btn').textContent='Close';
-  } else {
-    const totalExtra=dups.reduce((s,g)=>s+g.length-1,0);
-    intro.textContent=`Found ${dups.length} event${dups.length>1?'s':''} with duplicates — ${totalExtra} extra cop${totalExtra>1?'ies':'y'} to remove.`;
-    list.innerHTML=dups.map(group=>{
-      const ev=group[0];
-      const date=new Date(ev.start.dateTime.slice(0,10)+'T12:00:00').toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'});
-      const time=ev.start.dateTime.slice(11,16)+'–'+ev.end.dateTime.slice(11,16);
-      return `<div style="display:flex;align-items:flex-start;gap:10px;padding:9px 12px;border-radius:var(--r-xs);background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.2);margin-bottom:6px">
-        <span style="background:var(--red-dim);color:var(--red);font-size:11px;font-weight:700;padding:2px 7px;border-radius:10px;flex-shrink:0;margin-top:2px">×${group.length}</span>
-        <div>
-          <div style="font-size:13px;font-weight:600">${esc(ev.summary||'(no title)')}</div>
-          <div style="font-size:12px;color:var(--text2)">${date} · ${time}${ev.location?' · '+esc(ev.location):''}</div>
-        </div>
-      </div>`;
-    }).join('');
-    delBtn.disabled=false;
-    document.getElementById('skip-dups-btn').textContent='Skip duplicates';
-    modal._dups=dups;
-  }
-  showModal('dup-modal');
+  return out;
 }
-
-async function deleteDuplicates() {
-  const modal=document.getElementById('dup-modal');
-  const dups=modal._dups||[];
-  if(!dups.length) return;
-  const toDelete=dups.flatMap(g=>g.slice(1));
-  const progWrap=document.getElementById('dup-prog-wrap');
-  const progBar =document.getElementById('dup-prog-bar');
-  const doneEl  =document.getElementById('dup-done-msg');
-  const delBtn  =document.getElementById('del-dups-btn');
-  delBtn.disabled=true; progWrap.style.display='block'; doneEl.classList.add('hidden');
-  let deleted=0,failed=0;
-  const calId=getCalId();
-  for(const ev of toDelete){
-    try{
-      await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calId)}/events/${ev.id}`,
-        {method:'DELETE',headers:{Authorization:'Bearer '+accessToken}});
-      const idx=retEvents.findIndex(e=>e.id===ev.id);
-      if(idx!==-1) retEvents.splice(idx,1);
-      deleted++;
-    }catch{ failed++; }
-    progBar.style.width=Math.round((deleted+failed)/toDelete.length*100)+'%';
-    await sleep(80);
-  }
-  doneEl.textContent=`✓ Deleted ${deleted} duplicate${deleted>1?'s':''}${failed?' ('+failed+' failed)':''}.`;
-  doneEl.classList.remove('hidden'); delBtn.disabled=false;
-  buildRetUI(document.getElementById('ret-from').value,document.getElementById('ret-to').value);
-  toast(`Removed ${deleted} duplicates`,'success');
+function loadFromCalendar(){S.lectures=retLectures.map(x=>({...x}));renderAll();showPage('timetable');toast(`Loaded ${S.lectures.length} lectures`,'success');}
+async function deleteFromCal(scope){
+  if(!accessToken||!retEvents.length){toast('Fetch events first','error');return;}
+  let targets=scope==='lec'?retEvents.filter(e=>classifyEv(e)==='lec'):scope==='blk'?retEvents.filter(e=>classifyEv(e)==='blk'):[...retEvents];
+  if(!targets.length){toast('No matching events','warn');return;}
+  await runDeleteBatch(targets,`Deleting ${targets.length} events...`);
 }
-
-// ════════════════════════════════════════════════════════════════════════════
-//  DELETE FROM CALENDAR
-// ════════════════════════════════════════════════════════════════════════════
-async function deleteFromCal(scope) {
-  if(!accessToken||!retEvents.length){ toast('Fetch events first','error'); return; }
-  let targets,label;
-  if(scope==='lec')      { targets=retEvents.filter(e=>classifyEv(e)==='lec');   label=`${targets.length} lecture event${targets.length!==1?'s':''}`; }
-  else if(scope==='blk') { targets=retEvents.filter(e=>classifyEv(e)==='blk');   label=`${targets.length} study block event${targets.length!==1?'s':''}`; }
-  else                   { targets=[...retEvents];                                label=`all ${targets.length} fetched events`; }
-  if(!targets.length){ toast('No matching events','error'); return; }
-  if(!confirm(`Delete ${label} from Google Calendar? This cannot be undone.`)) return;
-
-  document.getElementById('del-modal-title').textContent=`Deleting ${label}…`;
-  document.getElementById('del-modal-sub').textContent='Do not close this tab.';
-  document.getElementById('del-prog-bar').style.width='0%';
+async function deleteAllStudySync(){
+  if(!accessToken){toast('Not connected','error');return;}
+  const data=await gfetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(getCalId())}/events?singleEvents=true&maxResults=2500`);
+  const targets=(data.items||[]).filter(e=>e.id);
+  if(!targets.length){toast('No events found','info');return;}
+  await runDeleteBatch(targets,`Deleting ${targets.length} events...`);
+}
+async function runDeleteBatch(targets,title){
+  showModal('del-modal');
+  setText('del-modal-title',title);
+  setText('del-modal-sub','Updating Google Calendar.');
   document.getElementById('del-log').innerHTML='';
   document.getElementById('del-done').classList.add('hidden');
-  showModal('del-modal');
-
-  let deleted=0,failed=0;
-  const deletedIds=new Set();
-  const calId=getCalId();
-  for(const ev of targets){
-    try{
-      await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calId)}/events/${ev.id}`,
-        {method:'DELETE',headers:{Authorization:'Bearer '+accessToken}});
-      deletedIds.add(ev.id); deleted++;
-    }catch(e){ failed++; delLog('✗ '+esc(ev.summary||'')+': '+e.message,true); }
-    document.getElementById('del-prog-bar').style.width=Math.round((deleted+failed)/targets.length*100)+'%';
-    if((deleted+failed)%10===0) delLog(`${deleted+failed}/${targets.length}…`);
-    await sleep(80);
-  }
-  retEvents=retEvents.filter(e=>!deletedIds.has(e.id));
-  const msg=`Deleted ${deleted} event${deleted!==1?'s':''}${failed?' ('+failed+' failed)':''}`;
-  document.getElementById('del-done-msg').textContent='✅ '+msg;
-  document.getElementById('del-done').classList.remove('hidden');
-  document.getElementById('del-modal-sub').textContent='Done.';
-  if(retEvents.length) buildRetUI(document.getElementById('ret-from').value,document.getElementById('ret-to').value);
-  else document.getElementById('ret-results').classList.add('hidden');
-  toast(msg,'success');
-}
-function delLog(msg,isErr=false) {
-  const el=document.getElementById('del-log');
-  el.innerHTML+=`<div style="color:${isErr?'var(--red)':'inherit'}">${msg}</div>`;
-  el.scrollTop=el.scrollHeight;
-}
-
-async function deleteAllStudySync() {
-  if(!accessToken){ toast('Not connected','error'); return; }
-  if(!confirm('Delete ALL events in the StudySync calendar? This cannot be undone.')) return;
-  const calId=getCalId();
-  try{
-    const data=await gfetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calId)}/events?maxResults=2500&singleEvents=true`);
-    const evs=(data.items||[]).filter(e=>e.id);
-    if(!evs.length){ toast('No events found','info'); return; }
-    if(!confirm(`Found ${evs.length} events. Delete them all?`)) return;
-    document.getElementById('del-modal-title').textContent=`Deleting ${evs.length} events…`;
-    document.getElementById('del-modal-sub').textContent='';
-    document.getElementById('del-prog-bar').style.width='0%';
-    document.getElementById('del-log').innerHTML='';
-    document.getElementById('del-done').classList.add('hidden');
-    showModal('del-modal');
-    let deleted=0,failed=0;
-    for(const ev of evs){
-      try{ await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calId)}/events/${ev.id}`,{method:'DELETE',headers:{Authorization:'Bearer '+accessToken}}); deleted++; }
-      catch{ failed++; }
-      document.getElementById('del-prog-bar').style.width=Math.round((deleted+failed)/evs.length*100)+'%';
-      await sleep(80);
-    }
-    // reset sync history since all events are gone
-    localStorage.removeItem(FP_KEY);
-    updateSyncStatusBar(); updateFpsLabel();
-    document.getElementById('del-done-msg').textContent=`✅ Deleted ${deleted} events.`;
-    document.getElementById('del-done').classList.remove('hidden');
-    toast(`Deleted ${deleted} events`,'success');
-  } catch(e){ toast('Error: '+e.message,'error'); }
-}
-
-// ════════════════════════════════════════════════════════════════════════════
-//  SYNC TO CALENDAR
-// ════════════════════════════════════════════════════════════════════════════
-function buildEventList(s,e) {
-  const evs=[];
-  for(let d=new Date(s);d<=e;d.setDate(d.getDate()+1)){
-    const dow=d.getDay(), ds=toISO(new Date(d));
-    S.lectures.filter(l=>l.subject.trim()&&DAY_JS[l.day]===dow).forEach(l=>{
-      evs.push({_t:'lec',summary:'📚 '+l.subject,description:l.location?'Location: '+l.location:'',
-        start:{dateTime:ds+'T'+l.start+':00',timeZone:S.tz},
-        end:  {dateTime:ds+'T'+l.end+':00',  timeZone:S.tz},colorId:'9'});
-    });
-    const blocksToSync=S.syncedBlocks===null?S.blocks:S.blocks.filter((_,i)=>S.syncedBlocks.includes(i));
-    blocksToSync.filter(b=>b.enabled&&b.days.includes(dow)).forEach(b=>{
-      evs.push({_t:'blk',summary:b.emoji+' '+b.name,
-        start:{dateTime:ds+'T'+b.start+':00',timeZone:S.tz},
-        end:  {dateTime:ds+'T'+b.end+':00',  timeZone:S.tz},colorId:'2'});
-    });
-  }
-  return evs;
-}
-
-async function previewSync() {
-  const s=new Date(document.getElementById('sync-start').value);
-  const e=new Date(document.getElementById('sync-end').value);
-  if(isNaN(s)||isNaN(e)||e<s){ toast('Fix date range','error'); return; }
-  const all=buildEventList(s,e);
-  const synced=loadFPs();
-  const newEvs=all.filter(ev=>!synced.has(fp(ev)));
-  const skipped=all.length-newEvs.length;
-  document.getElementById('preview-summary').textContent=`${newEvs.length} new events to create · ${skipped} already exist · ${daysBetween(s,e)} days`;
-  const grouped={};
-  newEvs.forEach(ev=>{ const d=ev.start.dateTime.slice(0,10); (grouped[d]=grouped[d]||[]).push(ev); });
-  document.getElementById('preview-list').innerHTML=Object.keys(grouped).sort().slice(0,14).map(d=>{
-    const label=new Date(d+'T12:00:00').toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'});
-    return `<div style="margin-bottom:.75rem"><div style="font-size:11px;font-weight:700;color:var(--text2);margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px">${label}</div>
-      ${grouped[d].map(ev=>`<div class="${ev._t==='lec'?'diff-new':'diff-new'}" style="background:${ev._t==='lec'?'rgba(123,104,238,.1)':'rgba(52,211,153,.08)'};border-left-color:${ev._t==='lec'?'var(--accent)':'var(--green)'};padding:4px 8px;border-radius:0 4px 4px 0;margin-bottom:2px;font-size:12px">
-        + ${esc(ev.summary)} <span style="color:var(--text2)">${ev.start.dateTime.slice(11,16)}–${ev.end.dateTime.slice(11,16)}</span>
-      </div>`).join('')}
-    </div>`;
-  }).join('')+(Object.keys(grouped).length>14?`<p style="font-size:12px;color:var(--text2)">…and ${Object.keys(grouped).length-14} more days</p>`:'');
-  showModal('preview-modal');
-}
-
-async function runSync(confirmed=false) {
-  if(!accessToken){ toast('Connect Google Calendar first','error'); return; }
-  if(!confirmed){
-    // check duplicates first
-    const s=new Date(document.getElementById('sync-start').value);
-    const e=new Date(document.getElementById('sync-end').value);
-    if(isNaN(s)||isNaN(e)||e<s){ toast('Fix date range','error'); return; }
-    const all=buildEventList(s,e);
-    const synced=loadFPs();
-    const newEvs=all.filter(ev=>!synced.has(fp(ev)));
-    const skipped=all.length-newEvs.length;
-    if(!newEvs.length){ toast('Nothing new to sync — all events already exist','info'); return; }
-    // Actual sync
-    await _doSync(s,e,newEvs,skipped);
-  } else {
-    const s=new Date(document.getElementById('sync-start').value);
-    const e=new Date(document.getElementById('sync-end').value);
-    const all=buildEventList(s,e);
-    const synced=loadFPs();
-    const newEvs=all.filter(ev=>!synced.has(fp(ev)));
-    await _doSync(s,e,newEvs,all.length-newEvs.length);
-  }
-}
-
-async function _doSync(s,e,newEvs,skipped) {
-  const btn=document.getElementById('sync-btn');
-  const spin=document.getElementById('sync-spin');
-  const progWrap=document.getElementById('sync-progress-wrap');
-  const progBar =document.getElementById('sync-progress-bar');
-  const logEl   =document.getElementById('sync-log');
-  const resEl   =document.getElementById('sync-result');
-  btn.disabled=true; spin.classList.remove('hidden');
-  progWrap.style.display='block'; logEl.classList.remove('hidden'); resEl.classList.add('hidden');
-  logEl.innerHTML=''; progBar.style.width='0%';
-
-  syncLog(skipped?`Skipping ${skipped} existing. Pushing ${newEvs.length} new events…`:`Pushing ${newEvs.length} events over ${daysBetween(s,e)} days…`);
-
-  const synced=loadFPs();
   let done=0,failed=0;
-  const calId=getCalId();
-  for(const ev of newEvs){
-    try{
-      const body={summary:ev.summary,start:ev.start,end:ev.end,colorId:ev.colorId};
-      if(ev.description) body.description=ev.description;
-      await gfetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calId)}/events`,
-        {method:'POST',body:JSON.stringify(body)});
-      synced.add(fp(ev)); done++;
-    } catch(err){ failed++; syncLog('✗ '+ev.summary+': '+err.message,true); }
-    progBar.style.width=Math.round((done+failed)/newEvs.length*100)+'%';
-    if((done+failed)%10===0||(done+failed)===newEvs.length) syncLog(`${done+failed}/${newEvs.length} done…`);
-    await sleep(90);
+  for(const ev of targets){
+    try{await deleteCalendarEvent(ev);done++;}
+    catch(e){failed++;document.getElementById('del-log').innerHTML+=`<div style="color:var(--red)">${esc(ev.summary)}: ${esc(e.message)}</div>`;}
+    document.getElementById('del-prog-bar').style.width=Math.round((done+failed)/targets.length*100)+'%';
+    await sleep(55);
   }
-  saveFPs(synced);
-  syncLog(`✓ Finished — ${done} created${failed?', '+failed+' failed':''}${skipped?', '+skipped+' skipped':''}`);
-  spin.classList.add('hidden'); btn.disabled=false;
-  resEl.classList.remove('hidden');
-  document.getElementById('sync-result-msg').textContent=`✅ Synced ${done} events!`;
-  document.getElementById('sr-lec').textContent=newEvs.filter(e=>e._t==='lec').length;
-  document.getElementById('sr-blk').textContent=newEvs.filter(e=>e._t==='blk').length;
-  document.getElementById('sr-skip').textContent=skipped;
-  document.getElementById('sr-days').textContent=daysBetween(s,e);
-  updateSyncStatusBar(); updateFpsLabel();
-  toast(`Synced ${done} events`,'success');
+  await refreshCalendarWindow(false);
+  setText('del-done-msg',`Deleted ${done} event${done!==1?'s':''}${failed?`, ${failed} failed`:''}.`);
+  document.getElementById('del-done').classList.remove('hidden');
+  toast(`Deleted ${done} events`,'success');
 }
 
-function syncLog(msg,isErr=false) {
-  const el=document.getElementById('sync-log');
-  el.innerHTML+=`<div style="color:${isErr?'var(--red)':'inherit'}">${msg}</div>`;
-  el.scrollTop=el.scrollHeight;
+function classifyEv(ev){
+  const s=(ev.summary||'').toLowerCase();
+  if(s.includes('lecture:')||s.includes('lecture')||s.includes('class'))return 'lec';
+  if(s.includes('study:')||s.includes('study')||s.includes('revision')||s.includes('prep'))return 'blk';
+  return 'other';
 }
+function eventStart(ev){return new Date(ev.start?.dateTime||ev.start?.date||0);}
+function eventEnd(ev){return new Date(ev.end?.dateTime||ev.end?.date||ev.start?.dateTime||0);}
+function eventCal(ev){return ev.organizer?.displayName||ev.calendarSummary||(S.calTarget==='primary'?'Primary':'StudySync');}
+function eventKey(ev){return [ev.summary||'',ev.start?.dateTime||'',ev.end?.dateTime||'',ev.location||'',eventCal(ev)].join('|').toLowerCase();}
+function issueKey(kind,a,b){return kind+'|'+(a?.id||eventKey(a))+'|'+(b?.id||eventKey(b)||'');}
+function isIgnored(key){return reviewIssues.ignored instanceof Set&&reviewIssues.ignored.has(key);}
+function detectCalendarConflicts(events){
+  const out=[],sorted=[...events].filter(e=>e.start?.dateTime&&e.end?.dateTime).sort((a,b)=>eventStart(a)-eventStart(b));
+  for(let i=0;i<sorted.length;i++)for(let j=i+1;j<sorted.length;j++){
+    const a=sorted[i],b=sorted[j];
+    if(eventStart(b)>=eventEnd(a))break;
+    if(eventEnd(a)>eventStart(b)){const key=issueKey('conflict',a,b);if(!isIgnored(key))out.push({key,first:a,second:b});}
+  }
+  return out;
+}
+function detectDuplicateEvents(events){
+  const groups={};
+  events.filter(e=>e.start?.dateTime&&e.end?.dateTime).forEach(ev=>(groups[eventKey(ev)]=groups[eventKey(ev)]||[]).push(ev));
+  return Object.values(groups).filter(g=>g.length>1).map(g=>{
+    g.sort((a,b)=>eventStart(a)-eventStart(b));
+    return {key:issueKey('duplicate',g[0],g[1]),events:g,keeper:g[0],duplicates:g.slice(1)};
+  }).filter(d=>!isIgnored(d.key));
+}
+function detectReviewSuggestions(conflicts,duplicates){
+  const out=[];
+  conflicts.forEach(c=>{
+    if(classifyEv(c.first)==='blk'||classifyEv(c.second)==='blk')out.push({key:'move|'+c.key,text:'A study block overlaps another event. Move it earlier or later if the adjacent slot is open.'});
+  });
+  duplicates.forEach(d=>{
+    if(d.events.some(e=>classifyEv(e)==='lec'))out.push({key:'lecture|'+d.key,text:'Duplicate recurring lecture found. Keep the oldest copy unless entries differ.'});
+  });
+  return out.filter(s=>!isIgnored(s.key));
+}
+function updateReviewState(events=retEvents){
+  const timed=(events||[]).filter(e=>e.start?.dateTime&&e.end?.dateTime);
+  retEvents=timed;
+  const conflicts=detectCalendarConflicts(timed),duplicates=detectDuplicateEvents(timed),suggestions=detectReviewSuggestions(conflicts,duplicates);
+  reviewIssues={...reviewIssues,conflicts,duplicates,suggestions};
+  updateReviewBadge();
+  renderReviewPage();
+  return reviewIssueCount();
+}
+function reviewIssueCount(){return reviewIssues.conflicts.length+reviewIssues.duplicates.length+reviewIssues.suggestions.length;}
+function reviewHealth(){return Math.max(0,100-reviewIssues.duplicates.length*5-reviewIssues.conflicts.length*10-reviewIssues.suggestions.length*2);}
+function renderReviewPage(){
+  const health=reviewHealth(),total=reviewIssueCount();
+  setText('review-health-pct',health+'%');
+  setText('review-health-copy',total?`${total} issue${total!==1?'s':''} need review.`:'No unresolved issues.');
+  setText('review-conflict-count',reviewIssues.conflicts.length);
+  setText('review-duplicate-count',reviewIssues.duplicates.length);
+  setText('review-suggestion-count',reviewIssues.suggestions.length);
+  setText('review-conflict-chip',reviewIssues.conflicts.length+' open');
+  setText('review-duplicate-chip',reviewIssues.duplicates.length+' open');
+  setText('review-suggestion-chip',reviewIssues.suggestions.length+' ideas');
+  document.getElementById('review-health-ring')?.style.setProperty('--pct',health);
+  const bars=document.getElementById('review-health-bars');
+  if(bars)bars.innerHTML=Array.from({length:10},(_,i)=>`<i class="${i<Math.ceil(health/10)?'on':''}"></i>`).join('');
+  const auto=document.getElementById('auto-resolve-btn');if(auto)auto.disabled=!total||!accessToken;
+  const cl=document.getElementById('review-conflicts-list');if(cl)cl.innerHTML=reviewIssues.conflicts.length?reviewIssues.conflicts.map(renderConflictCard).join(''):'<div class="review-empty">No conflicts detected.</div>';
+  const dl=document.getElementById('review-duplicates-list');if(dl)dl.innerHTML=reviewIssues.duplicates.length?reviewIssues.duplicates.map(renderDuplicateCard).join(''):'<div class="review-empty">No duplicate events detected.</div>';
+  const sl=document.getElementById('review-suggestions-list');if(sl)sl.innerHTML=reviewIssues.suggestions.length?reviewIssues.suggestions.map(s=>`<div class="suggestion-item"><span class="chip chip-blue">Tip</span><div>${esc(s.text)}</div></div>`).join(''):'<div class="review-empty">No suggestions right now.</div>';
+}
+function renderEventMini(ev,label){
+  return `<div class="event-mini"><span class="chip chip-accent">${label}</span><strong>${esc(ev.summary||'(no title)')}</strong><span>${formatEventDate(ev)} · ${formatEventTime(ev)}</span><span>${esc(eventCal(ev))}${ev.location?' · '+esc(ev.location):''}</span></div>`;
+}
+function renderConflictCard(c,i){
+  return `<div class="issue-card" id="conflict-${i}"><div class="issue-top"><div class="issue-icon">!</div><div class="issue-body"><div class="issue-title">Schedule conflict</div><div class="issue-meta">${formatEventDate(c.first)} · ${formatEventTime(c.first)} overlaps ${formatEventTime(c.second)}</div><div class="event-pair">${renderEventMini(c.first,'First event')}${renderEventMini(c.second,'Second event')}</div><div class="issue-actions"><button class="btn btn-outline btn-sm" onclick="resolveConflict(${i},'first')">Keep First</button><button class="btn btn-outline btn-sm" onclick="resolveConflict(${i},'second')">Keep Second</button><button class="btn btn-outline btn-sm" onclick="resolveConflict(${i},'both')">Keep Both</button><button class="btn btn-red btn-sm" onclick="resolveConflict(${i},'deleteBoth')">Delete Both</button><button class="btn btn-outline btn-sm" onclick="resolveConflict(${i},'merge')">Merge</button><button class="btn btn-outline btn-sm" onclick="resolveConflict(${i},'later')">Move Later</button><button class="btn btn-outline btn-sm" onclick="resolveConflict(${i},'earlier')">Move Earlier</button><button class="btn btn-ghost btn-sm" onclick="resolveConflict(${i},'ignore')">Ignore</button></div></div></div></div>`;
+}
+function renderDuplicateCard(d,i){
+  return `<div class="issue-card" id="duplicate-${i}"><div class="issue-top"><div class="issue-icon" style="background:var(--amber-dim);color:var(--amber)">=</div><div class="issue-body"><div class="issue-title">${d.events.length} matching events</div><div class="issue-meta">${formatEventDate(d.keeper)} · ${formatEventTime(d.keeper)} · ${esc(eventCal(d.keeper))}</div>${renderEventMini(d.keeper,'Oldest copy')}<div class="issue-actions"><button class="btn btn-red btn-sm" onclick="resolveDuplicate(${i},'delete')">Delete Duplicate</button><button class="btn btn-outline btn-sm" onclick="resolveDuplicate(${i},'keep')">Keep Both</button><button class="btn btn-ghost btn-sm" onclick="resolveDuplicate(${i},'ignore')">Ignore</button></div></div></div></div>`;
+}
+async function resolveConflict(i,choice){
+  const c=reviewIssues.conflicts[i];if(!c)return;
+  document.getElementById('conflict-'+i)?.classList.add('resolving');
+  try{
+    if(choice==='first')await deleteCalendarEvent(c.second);
+    else if(choice==='second')await deleteCalendarEvent(c.first);
+    else if(choice==='deleteBoth'){await deleteCalendarEvent(c.first);await deleteCalendarEvent(c.second);}
+    else if(choice==='merge')await mergeCalendarEvents(c.first,c.second);
+    else if(choice==='later'||choice==='earlier')await moveConflictEvent(c,choice);
+    else reviewIssues.ignored.add(c.key);
+    await refreshAfterReviewAction(choice==='both'||choice==='ignore'?'Conflict ignored':'Conflict resolved');
+  }catch(e){toast('Could not resolve conflict: '+e.message,'error');renderReviewPage();}
+}
+async function resolveDuplicate(i,action){
+  const d=reviewIssues.duplicates[i];if(!d)return;
+  document.getElementById('duplicate-'+i)?.classList.add('resolving');
+  try{
+    if(action==='delete')for(const ev of d.duplicates)await deleteCalendarEvent(ev);
+    else reviewIssues.ignored.add(d.key);
+    await refreshAfterReviewAction(action==='delete'?'Duplicate deleted':'Duplicate ignored');
+  }catch(e){toast('Could not update duplicate: '+e.message,'error');renderReviewPage();}
+}
+async function autoResolveReview(){
+  if(!accessToken){toast('Connect Google Calendar first','error');return;}
+  let changed=0;
+  try{
+    for(const d of [...reviewIssues.duplicates])for(const ev of d.duplicates){await deleteCalendarEvent(ev);changed++;await sleep(55);}
+    for(const c of [...reviewIssues.conflicts]){
+      if(classifyEv(c.first)==='blk'){await moveEventByMinutes(c.first,30);changed++;}
+      else if(classifyEv(c.second)==='blk'){await moveEventByMinutes(c.second,30);changed++;}
+    }
+    await refreshAfterReviewAction(changed?`Auto resolved ${changed} item${changed!==1?'s':''}`:'Nothing safe to auto resolve');
+  }catch(e){toast('Auto resolve stopped: '+e.message,'error');await refreshCalendarWindow(false);}
+}
+async function refreshAfterReviewAction(msg){await refreshCalendarWindow(false);renderDashboard();renderReviewPage();toast(msg,'success');}
+async function refreshCalendarWindow(showToast){
+  if(!accessToken){updateReviewState(retEvents);return;}
+  const from=new Date();from.setDate(from.getDate()-14);
+  const to=new Date();to.setDate(to.getDate()+56);
+  const data=await gfetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(getCalId())}/events?timeMin=${encodeURIComponent(from.toISOString())}&timeMax=${encodeURIComponent(to.toISOString())}&singleEvents=true&orderBy=startTime&maxResults=2500`);
+  updateReviewState((data.items||[]).filter(e=>e.start?.dateTime));
+  buildRetUI();
+  if(showToast)toast(reviewIssueCount()?`${reviewIssueCount()} issues need review`:'Calendar is healthy','success');
+}
+async function deleteCalendarEvent(ev){
+  await gfetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(getCalId())}/events/${ev.id}`,{method:'DELETE'});
+  retEvents=retEvents.filter(e=>e.id!==ev.id);
+}
+async function patchCalendarEvent(ev,body){
+  await gfetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(getCalId())}/events/${ev.id}`,{method:'PATCH',body:JSON.stringify(body)});
+}
+async function mergeCalendarEvents(first,second){
+  await patchCalendarEvent(first,{summary:first.summary||second.summary,end:eventEnd(first)>eventEnd(second)?first.end:second.end,location:first.location||second.location||undefined,description:[first.description,second.description].filter(Boolean).join('\n\n')||undefined});
+  await deleteCalendarEvent(second);
+}
+async function moveConflictEvent(c,direction){
+  const target=classifyEv(c.first)==='blk'?c.first:c.second;
+  await moveEventByMinutes(target,direction==='later'?30:-30);
+}
+async function moveEventByMinutes(ev,mins){
+  const s=eventStart(ev),e=eventEnd(ev);
+  s.setMinutes(s.getMinutes()+mins);e.setMinutes(e.getMinutes()+mins);
+  await patchCalendarEvent(ev,{start:{dateTime:s.toISOString(),timeZone:S.tz},end:{dateTime:e.toISOString(),timeZone:S.tz}});
+}
+function formatEventDate(ev){return eventStart(ev).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'});}
+function formatEventTime(ev){return eventStart(ev).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})+'-'+eventEnd(ev).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});}
+function updateReviewBadge(){
+  const total=reviewIssueCount();
+  const b=document.getElementById('review-nav-badge');if(b){b.textContent=total;b.classList.toggle('hidden',!total);}
+  setText('dash-calendar-status',total?`${total} Issues Need Review`:'Healthy');
+  setText('ds-conf',reviewIssues.conflicts.length);
+}
+function checkDuplicates(){updateReviewState(retEvents);showPage('review');}
+async function deleteDuplicates(){await autoResolveReview();}
+function showConflictDialog(){showPage('review');}
+function closeConflictDialog(){}
 
-function updateSyncStatusBar() {
-  const n=loadFPs().size;
-  const el=document.getElementById('sync-status-bar');
-  if(!el) return;
-  if(n>0){ el.textContent=`${n} events tracked — only new ones will be added.`; el.style.display='block'; }
-  else    { el.style.display='none'; }
-}
-function updateFpsLabel() {
-  const el=document.getElementById('fps-count-label');
-  if(el) el.textContent=`${loadFPs().size} events tracked`;
-}
-function resetSyncHistory() {
-  if(!confirm('Clear sync history? Next sync may create duplicates if events still exist on your calendar.')) return;
-  localStorage.removeItem(FP_KEY);
-  updateSyncStatusBar(); updateFpsLabel();
-  toast('Sync history cleared','info');
-}
-
-// ════════════════════════════════════════════════════════════════════════════
-//  UNDO
-// ════════════════════════════════════════════════════════════════════════════
-function pushUndo(label,fn) {
-  const snap={lectures:JSON.parse(JSON.stringify(S.lectures)),blocks:JSON.parse(JSON.stringify(S.blocks)),fn};
-  undoStack.push({label,snap});
-  if(undoStack.length>20) undoStack.shift();
-}
-function showUndoBanner(msg) {
-  document.getElementById('undo-msg').textContent=msg;
-  document.getElementById('undo-banner').classList.remove('hidden');
-  clearTimeout(undoTimer);
-  undoTimer=setTimeout(dismissUndo,6000);
-}
-function dismissUndo() { document.getElementById('undo-banner').classList.add('hidden'); }
-function undoAction() {
-  if(!undoStack.length){ toast('Nothing to undo','info'); return; }
-  const {label,snap}=undoStack.pop();
-  if(snap.fn) snap.fn();
-  else { S.lectures=snap.lectures; S.blocks=snap.blocks; renderAll(); save(); }
-  dismissUndo();
-  toast(`Undid: ${label}`,'info');
-}
-
-// ════════════════════════════════════════════════════════════════════════════
-//  TOASTS
-// ════════════════════════════════════════════════════════════════════════════
-function toast(msg,type='info') {
-  const stack=document.getElementById('toast-stack');
-  const t=document.createElement('div');
-  const icon={success:'✅',error:'❌',warn:'⚠️',info:'ℹ️'}[type]||'ℹ️';
-  t.className=`toast toast-${type==='error'?'error':type==='success'?'success':type==='warn'?'warn':'info'}`;
-  t.innerHTML=`<span>${icon}</span><span>${esc(msg)}</span>`;
-  stack.appendChild(t);
-  setTimeout(()=>{ t.style.opacity='0'; t.style.transform='translateX(20px)'; t.style.transition='all .3s'; setTimeout(()=>t.remove(),300); },3000);
-}
-
-// ════════════════════════════════════════════════════════════════════════════
-//  UTILS
-// ════════════════════════════════════════════════════════════════════════════
-function setWeeks(n) {
-  const mon=getThisMonday();
-  document.getElementById('sync-start').value=toISO(mon);
-  const end=new Date(mon); end.setDate(mon.getDate()+n*7-1);
-  document.getElementById('sync-end').value=toISO(end);
-}
-function getThisMonday() {
-  const today=new Date(); const mon=new Date(today);
-  mon.setDate(today.getDate()-((today.getDay()+6)%7));
-  return mon;
-}
-function toISO(d)         { return d.toISOString().split('T')[0]; }
-function daysBetween(a,b) { return Math.round((b-a)/86400000)+1; }
-function sleep(ms)        { return new Promise(r=>setTimeout(r,ms)); }
-function esc(s)           { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-
+window.onerror=(msg,src,line,col,err)=>{console.error(msg,line,col,err);toast('JavaScript error: '+msg,'error');};
 </script>
-
-<div id="mobile-nav">
-  <button class="mob-tab active" id="mob-dashboard" onclick="showPage('dashboard');updateMobNav('dashboard')">
-    <span class="mob-tab-icon">🏠</span>Home
-  </button>
-  <button class="mob-tab" id="mob-timetable" onclick="showPage('timetable');updateMobNav('timetable')">
-    <span class="mob-tab-icon">📅</span>Timetable
-  </button>
-  <button class="mob-tab" id="mob-calendar" onclick="showPage('calendar');updateMobNav('calendar')">
-    <span class="mob-tab-icon">🔄</span>Calendar
-  </button>
-  <button class="mob-tab" id="mob-analytics" onclick="showPage('analytics');updateMobNav('analytics')">
-    <span class="mob-tab-icon">📊</span>Stats
-  </button>
-  <button class="mob-tab" id="mob-settings" onclick="showPage('settings');updateMobNav('settings')">
-    <span class="mob-tab-icon">⚙️</span>Settings
-  </button>
-</div>
 </body>
 </html>
