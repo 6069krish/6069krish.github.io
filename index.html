@@ -126,9 +126,11 @@ button{cursor:pointer}
       <div class="card-title"><span class="ct-icon">G</span> Connect Google Calendar</div>
       <div id="dash-auth-area">
         <div class="alert alert-warn" style="margin-bottom:12px">Paste your Google OAuth Client ID. StudySync talks directly to Google Calendar from this browser.</div>
+        
         <div class="row">
           <input class="input" id="gcal-cid" placeholder="xxxxxx.apps.googleusercontent.com" style="flex:1;min-width:240px">
           <button class="btn btn-primary" onclick="initGoogle()">Sign in with Google</button>
+          <button class="btn btn-outline" onclick="clearSavedClientId()">Clear saved ID</button>
         </div>
       </div>
       <div id="dash-connected" class="hidden">
@@ -518,28 +520,41 @@ function cleanClientId(value) {
     .trim();
 }
 
+function clearSavedClientId() {
+  localStorage.removeItem('gcal_cid');
+  const input = document.getElementById('gcal-cid');
+  if (input) input.value = '';
+  toast('Saved Client ID cleared. Paste it again.', 'info');
+}
+
 async function initGoogle() {
   const cidInput = document.getElementById('gcal-cid');
+
+  // IMPORTANT: removes hidden spaces/newlines from copied Google Client IDs.
   const cid = cleanClientId(cidInput.value);
   cidInput.value = cid;
+
+  console.log('StudySync OAuth client_id being sent:', cid);
+  console.log('StudySync current origin:', location.origin);
+  console.log('StudySync current protocol:', location.protocol);
 
   if (!cid) {
     toast('Paste your Client ID first', 'error');
     return;
   }
 
-  if (!/^[0-9]+-[a-z0-9_-]+\.apps\.googleusercontent\.com$/i.test(cid)) {
-    toast('Client ID format looks wrong. Paste the Web application Client ID only.', 'error');
+  if (!/^[0-9]+-[A-Za-z0-9_-]+\.apps\.googleusercontent\.com$/.test(cid)) {
+    toast('Client ID format is invalid. Clear it and paste the Web application Client ID again.', 'error');
     return;
   }
 
   if (location.protocol === 'file:') {
-    toast('Google sign-in must run from http://localhost:8080 or your GitHub Pages URL, not file://', 'error');
+    toast('Open this from http://localhost:8080, not file://', 'error');
     return;
   }
 
-  if (!window.google) {
-    toast('Google script loading — wait a moment', 'warn');
+  if (!window.google || !google.accounts || !google.accounts.oauth2) {
+    toast('Google OAuth script is not loaded yet. Wait a moment and try again.', 'warn');
     return;
   }
 
@@ -582,6 +597,7 @@ async function initGoogle() {
 
   client.requestAccessToken({ prompt: 'consent' });
 }
+
 function signOut(){
   accessToken=null;studySyncCalId=null;
   document.getElementById('dash-connected').classList.add('hidden');
